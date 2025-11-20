@@ -27,6 +27,9 @@ namespace GiaoDienDangNhap
             // Tăng chiều cao của dòng trong DataGridView
             dataGridView1.RowTemplate.Height = 80;
 
+            // Đảm bảo sau khi dữ liệu binding xong sẽ gán hình vào lưới
+            dataGridView1.DataBindingComplete += (s, args) => LoadAnhVaoGrid();
+
             // Cấu hình DataGridView để fill đầy
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 

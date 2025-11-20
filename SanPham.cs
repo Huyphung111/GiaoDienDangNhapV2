@@ -16,6 +16,7 @@ namespace GiaoDienDangNhap
         string connectionString = @"Data Source=HUYNE;Initial Catalog=QUANLY_PETSHOP_V9;Integrated Security=True;TrustServerCertificate=True";
         bool isAddNew = false;
         string imagePath = "";
+        private readonly Image placeholderImage = CreatePlaceholderImage();
 
         public SanPham()
         {
@@ -147,44 +148,13 @@ namespace GiaoDienDangNhap
 
                 // Hiển thị ảnh
                 var hinhAnhValue = row.Cells["HinhAnh"].Value;
-                if (hinhAnhValue != null && !string.IsNullOrWhiteSpace(hinhAnhValue.ToString()))
-                {
-                    string file = hinhAnhValue.ToString().Trim();
-                    string projectPath = Application.StartupPath;
-                    string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-                    string fullPath = solutionPath + "\\Images\\SanPhamPhuKien\\" + file;
-
-                    if (File.Exists(fullPath))
-                    {
-                        if (pictureBox1.Image != null)
-                        {
-                            var oldImage = pictureBox1.Image;
-                            pictureBox1.Image = null;
-                            oldImage.Dispose();
-                        }
-
-                        pictureBox1.Image = Image.FromFile(fullPath);
-                        imagePath = file;
-                    }
-                    else
-                    {
-                        pictureBox1.Image = null;
-                        imagePath = "";
-                    }
-                }
-                else
-                {
-                    pictureBox1.Image = null;
-                    imagePath = "";
-                }
+                LoadSelectedImage(hinhAnhValue?.ToString());
             }
         }
 
         private void LoadAnhVaoGrid()
         {
-            string projectPath = Application.StartupPath;
-            string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-            string folder = solutionPath + "\\Images\\SanPhamPhuKien\\";
+            string folder = GetImagesFolder();
 
             if (!Directory.Exists(folder))
             {
@@ -199,30 +169,11 @@ namespace GiaoDienDangNhap
                 try
                 {
                     var val = row.Cells["HinhAnh"].Value;
-                    if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
-                    {
-                        row.Cells["HinhAnh_Image"].Value = null;
-                        continue;
-                    }
-
-                    string file = val.ToString().Trim();
-                    string fullPath = folder + file;
-
-                    if (File.Exists(fullPath))
-                    {
-                        using (var img = Image.FromFile(fullPath))
-                        {
-                            row.Cells["HinhAnh_Image"].Value = new Bitmap(img);
-                        }
-                    }
-                    else
-                    {
-                        row.Cells["HinhAnh_Image"].Value = null;
-                    }
+                    SetGridImage(row, val?.ToString(), folder);
                 }
                 catch
                 {
-                    row.Cells["HinhAnh_Image"].Value = null;
+                    row.Cells["HinhAnh_Image"].Value = new Bitmap(placeholderImage);
                 }
             }
         }
@@ -262,39 +213,90 @@ namespace GiaoDienDangNhap
                 txt_MoTaSanPham.Text = row.Cells["MoTa"].Value.ToString(); // Mô tả
 
                 // Hiển thị hình ảnh
-                var hinhAnhValue = row.Cells["HinhAnh"].Value;
-                if (hinhAnhValue != null && !string.IsNullOrWhiteSpace(hinhAnhValue.ToString()))
-                {
-                    string file = hinhAnhValue.ToString().Trim();
-                    string projectPath = Application.StartupPath;
-                    string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-                    string fullPath = solutionPath + "\\Images\\SanPhamPhuKien\\" + file;
+                LoadSelectedImage(row.Cells["HinhAnh"].Value?.ToString());
+            }
+        }
 
-                    if (File.Exists(fullPath))
-                    {
-                        // Giải phóng ảnh cũ trước
-                        if (pictureBox1.Image != null)
-                        {
-                            var oldImage = pictureBox1.Image;
-                            pictureBox1.Image = null;
-                            oldImage.Dispose();
-                        }
+        private void SetGridImage(DataGridViewRow row, string fileName, string folder)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                row.Cells["HinhAnh_Image"].Value = new Bitmap(placeholderImage);
+                return;
+            }
 
-                        pictureBox1.Image = Image.FromFile(fullPath);
-                        imagePath = file;
-                    }
-                    else
-                    {
-                        pictureBox1.Image = null;
-                        imagePath = "";
-                    }
-                }
-                else
+            string fullPath = Path.Combine(folder, fileName.Trim());
+
+            if (File.Exists(fullPath))
+            {
+                using (var img = Image.FromFile(fullPath))
                 {
-                    pictureBox1.Image = null;
-                    imagePath = "";
+                    row.Cells["HinhAnh_Image"].Value = new Bitmap(img);
                 }
             }
+            else
+            {
+                row.Cells["HinhAnh_Image"].Value = new Bitmap(placeholderImage);
+            }
+        }
+
+        private void LoadSelectedImage(string fileName)
+        {
+            string folder = GetImagesFolder();
+
+            // Giải phóng ảnh cũ trước
+            if (pictureBox1.Image != null)
+            {
+                var oldImage = pictureBox1.Image;
+                pictureBox1.Image = null;
+                oldImage.Dispose();
+            }
+
+            if (!string.IsNullOrWhiteSpace(fileName))
+            {
+                string fullPath = Path.Combine(folder, fileName.Trim());
+
+                if (File.Exists(fullPath))
+                {
+                    pictureBox1.Image = Image.FromFile(fullPath);
+                    imagePath = fileName.Trim();
+                    return;
+                }
+            }
+
+            pictureBox1.Image = new Bitmap(placeholderImage);
+            imagePath = string.Empty;
+        }
+
+        private string GetImagesFolder()
+        {
+            string projectPath = Application.StartupPath;
+            string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
+            return Path.Combine(solutionPath, "Images", "SanPhamPhuKien");
+        }
+
+        private static Image CreatePlaceholderImage()
+        {
+            Bitmap bmp = new Bitmap(120, 80);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.LightGray);
+                using (Pen pen = new Pen(Color.DarkGray, 2))
+                {
+                    g.DrawRectangle(pen, 1, 1, bmp.Width - 2, bmp.Height - 2);
+                }
+
+                string text = "No Image";
+                using (Font font = new Font(FontFamily.GenericSansSerif, 10, FontStyle.Bold))
+                {
+                    SizeF size = g.MeasureString(text, font);
+                    g.DrawString(text, font, Brushes.DimGray,
+                        (bmp.Width - size.Width) / 2,
+                        (bmp.Height - size.Height) / 2);
+                }
+            }
+
+            return bmp;
         }
 
         // ===== NÚT THÊM =====
