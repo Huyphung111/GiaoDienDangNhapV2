@@ -34,8 +34,8 @@ namespace GiaoDienDangNhap
             // Xóa các control cũ trong panel (nếu có)
             panel_NoiDung.Controls.Clear();
 
-            // Tạo instance của form ThuCungGiaoDien
-            ThuCungGiaoDien formThuCung = new ThuCungGiaoDien();
+            // Tạo instance của form ThuCung
+            ThuCung formThuCung = new ThuCung();
 
             // Set các thuộc tính để form hiển thị như một control
             formThuCung.TopLevel = false;
@@ -70,9 +70,19 @@ namespace GiaoDienDangNhap
             // Xóa các control cũ trong panel (nếu có)
             panel_NoiDung.Controls.Clear();
 
-            // TODO: Thêm form phụ kiện nếu có
-            MessageBox.Show("Form Phụ Kiện đang được phát triển!", "Thông báo",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Tạo instance của form Sản Phẩm để hiển thị phụ kiện
+            SanPham formSanPham = new SanPham();
+
+            // Set các thuộc tính để form hiển thị như một control
+            formSanPham.TopLevel = false;
+            formSanPham.FormBorderStyle = FormBorderStyle.None;
+            formSanPham.Dock = DockStyle.Fill;
+
+            // Thêm form vào panel
+            panel_NoiDung.Controls.Add(formSanPham);
+
+            // Hiển thị form
+            formSanPham.Show();
         }
 
         // ═══════════════════════════════════════════════════════════
