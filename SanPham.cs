@@ -22,6 +22,9 @@ namespace GiaoDienDangNhap
             InitializeComponent();
             // Gọi Load ngay trong constructor
             this.Load += SanPham_Load;
+
+            // Đảm bảo hình ảnh được nạp ngay sau khi dữ liệu binding xong
+            this.datagriw_sanphamphukien.DataBindingComplete += datagriw_sanphamphukien_DataBindingComplete;
         }
 
         // ===== FORM LOAD =====
@@ -116,6 +119,23 @@ namespace GiaoDienDangNhap
 
                 // Auto resize columns
                 datagriw_sanphamphukien.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+                if (datagriw_sanphamphukien.Rows.Count > 0)
+                {
+                    datagriw_sanphamphukien.ClearSelection();
+                    datagriw_sanphamphukien.Rows[0].Selected = true;
+
+                    var tenSpColumn = datagriw_sanphamphukien.Columns["TenSP"];
+                    if (tenSpColumn != null)
+                    {
+                        datagriw_sanphamphukien.CurrentCell = datagriw_sanphamphukien.Rows[0].Cells[tenSpColumn.Index];
+                    }
+
+                    datagriw_sanphamphukien_SelectionChanged(null, EventArgs.Empty);
+                }
+
+                // Đảm bảo hình ảnh trong lưới được nạp ngay sau khi dữ liệu được bind
+                LoadAnhVaoGrid();
             }
             catch (Exception ex)
             {
@@ -178,6 +198,11 @@ namespace GiaoDienDangNhap
                     imagePath = "";
                 }
             }
+        }
+
+        private void datagriw_sanphamphukien_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            LoadAnhVaoGrid();
         }
 
         private void LoadAnhVaoGrid()

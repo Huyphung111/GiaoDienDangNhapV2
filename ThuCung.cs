@@ -15,6 +15,7 @@ namespace GiaoDienDangNhap
         public ThuCung()
         {
             InitializeComponent();
+            this.dataGridView1.DataBindingComplete += dataGridView1_DataBindingComplete;
         }
 
         // ====================================================
@@ -141,7 +142,29 @@ namespace GiaoDienDangNhap
                     imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                     dataGridView1.Columns.Insert(0, imgCol);
                 }
+
+                if (dataGridView1.Rows.Count > 0)
+                {
+                    dataGridView1.ClearSelection();
+                    dataGridView1.Rows[0].Selected = true;
+
+                    var tenCol = dataGridView1.Columns["TenThuCung"];
+                    if (tenCol != null)
+                    {
+                        dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells[tenCol.Index];
+                    }
+
+                    dataGridView1_CellClick(this, new DataGridViewCellEventArgs(0, 0));
+                }
+
+                // Nạp lại hình ảnh ngay sau khi DataGridView được bind dữ liệu
+                LoadAnhVaoGrid();
             }
+        }
+
+        private void dataGridView1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            LoadAnhVaoGrid();
         }
 
         // ====================================================
