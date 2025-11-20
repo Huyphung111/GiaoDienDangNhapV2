@@ -114,6 +114,12 @@
     <Compile Include="ThongKeBaoCao.Designer.cs">
       <DependentUpon>ThongKeBaoCao.cs</DependentUpon>
     </Compile>
+    <Compile Include="ThuCung.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ThuCung.Designer.cs">
+      <DependentUpon>ThuCung.cs</DependentUpon>
+    </Compile>
     <Compile Include="ThuCungGiaoDien.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -150,6 +156,9 @@
     </Compile>
     <EmbeddedResource Include="ThongKeBaoCao.resx">
       <DependentUpon>ThongKeBaoCao.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ThuCung.resx">
+      <DependentUpon>ThuCung.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ThuCungGiaoDien.resx">
       <DependentUpon>ThuCungGiaoDien.cs</DependentUpon>
@@ -424,6 +433,7 @@
     <None Include="Resources\pet-shop.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\ThuCung\poodle.jpg.jpg" />
     <Content Include="SQLThuCung.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
