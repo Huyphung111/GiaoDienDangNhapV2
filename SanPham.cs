@@ -130,6 +130,9 @@ namespace GiaoDienDangNhap
 
                     datagriw_sanphamphukien_SelectionChanged(null, EventArgs.Empty);
                 }
+
+                // Đảm bảo hình ảnh trong lưới được nạp ngay sau khi dữ liệu được bind
+                LoadAnhVaoGrid();
             }
             catch (Exception ex)
             {

@@ -155,6 +155,9 @@ namespace GiaoDienDangNhap
 
                     dataGridView1_CellClick(this, new DataGridViewCellEventArgs(0, 0));
                 }
+
+                // Nạp lại hình ảnh ngay sau khi DataGridView được bind dữ liệu
+                LoadAnhVaoGrid();
             }
         }
 
