@@ -28,13 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ThuCung));
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnTim = new System.Windows.Forms.Button();
             this.cboLoai = new System.Windows.Forms.ComboBox();
             this.txtTim = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.HinhAnh_File = new System.Windows.Forms.DataGridViewImageColumn();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tool_themm = new System.Windows.Forms.ToolStripButton();
+            this.tool_them = new System.Windows.Forms.ToolStripLabel();
+            this.tool_xoa = new System.Windows.Forms.ToolStripButton();
+            this.tool_xoaa = new System.Windows.Forms.ToolStripLabel();
+            this.tool_suaa = new System.Windows.Forms.ToolStripButton();
+            this.tool_sua = new System.Windows.Forms.ToolStripLabel();
+            this.tool_luuu = new System.Windows.Forms.ToolStripButton();
+            this.tool_luu = new System.Windows.Forms.ToolStripLabel();
+            this.cbMaloai = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.txtMa = new System.Windows.Forms.TextBox();
@@ -53,10 +63,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.txtTen = new System.Windows.Forms.TextBox();
-            this.cbMaloai = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel2.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAnh)).BeginInit();
             this.SuspendLayout();
             // 
@@ -67,7 +77,7 @@
             this.panel1.Controls.Add(this.txtTim);
             this.panel1.Location = new System.Drawing.Point(200, 46);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1070, 122);
+            this.panel1.Size = new System.Drawing.Size(1246, 122);
             this.panel1.TabIndex = 0;
             // 
             // btnTim
@@ -100,26 +110,17 @@
             // dataGridView1
             // 
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.HinhAnh_File});
             this.dataGridView1.Location = new System.Drawing.Point(200, 174);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 62;
             this.dataGridView1.RowTemplate.Height = 28;
-            this.dataGridView1.Size = new System.Drawing.Size(1070, 232);
+            this.dataGridView1.Size = new System.Drawing.Size(1246, 232);
             this.dataGridView1.TabIndex = 1;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
-            // HinhAnh_File
-            // 
-            this.HinhAnh_File.HeaderText = "Hình Ảnh";
-            this.HinhAnh_File.ImageLayout = System.Windows.Forms.DataGridViewImageCellLayout.Zoom;
-            this.HinhAnh_File.MinimumWidth = 8;
-            this.HinhAnh_File.Name = "HinhAnh_File";
-            this.HinhAnh_File.Width = 150;
-            // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.toolStrip1);
             this.panel2.Controls.Add(this.cbMaloai);
             this.panel2.Controls.Add(this.label9);
             this.panel2.Controls.Add(this.label8);
@@ -143,6 +144,99 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1247, 223);
             this.panel2.TabIndex = 2;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tool_themm,
+            this.tool_them,
+            this.tool_xoa,
+            this.tool_xoaa,
+            this.tool_suaa,
+            this.tool_sua,
+            this.tool_luuu,
+            this.tool_luu});
+            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(1247, 33);
+            this.toolStrip1.TabIndex = 21;
+            this.toolStrip1.Text = "toolStrip1";
+            // 
+            // tool_themm
+            // 
+            this.tool_themm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_themm.Image = ((System.Drawing.Image)(resources.GetObject("tool_themm.Image")));
+            this.tool_themm.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_themm.Name = "tool_themm";
+            this.tool_themm.Size = new System.Drawing.Size(34, 28);
+            this.tool_themm.Text = "toolStripButton1";
+            this.tool_themm.Click += new System.EventHandler(this.tool_themm_Click);
+            // 
+            // tool_them
+            // 
+            this.tool_them.Name = "tool_them";
+            this.tool_them.Size = new System.Drawing.Size(56, 28);
+            this.tool_them.Text = "Thêm";
+            // 
+            // tool_xoa
+            // 
+            this.tool_xoa.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_xoa.Image = ((System.Drawing.Image)(resources.GetObject("tool_xoa.Image")));
+            this.tool_xoa.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_xoa.Name = "tool_xoa";
+            this.tool_xoa.Size = new System.Drawing.Size(34, 28);
+            this.tool_xoa.Text = "toolStripButton2";
+            this.tool_xoa.Click += new System.EventHandler(this.tool_xoa_Click);
+            // 
+            // tool_xoaa
+            // 
+            this.tool_xoaa.Name = "tool_xoaa";
+            this.tool_xoaa.Size = new System.Drawing.Size(43, 28);
+            this.tool_xoaa.Text = "Xóa";
+            // 
+            // tool_suaa
+            // 
+            this.tool_suaa.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_suaa.Image = ((System.Drawing.Image)(resources.GetObject("tool_suaa.Image")));
+            this.tool_suaa.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_suaa.Name = "tool_suaa";
+            this.tool_suaa.Size = new System.Drawing.Size(34, 28);
+            this.tool_suaa.Text = "toolStripButton3";
+            this.tool_suaa.Click += new System.EventHandler(this.tool_suaa_Click);
+            // 
+            // tool_sua
+            // 
+            this.tool_sua.Name = "tool_sua";
+            this.tool_sua.Size = new System.Drawing.Size(42, 28);
+            this.tool_sua.Text = "Sửa";
+            // 
+            // tool_luuu
+            // 
+            this.tool_luuu.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_luuu.Image = ((System.Drawing.Image)(resources.GetObject("tool_luuu.Image")));
+            this.tool_luuu.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_luuu.Name = "tool_luuu";
+            this.tool_luuu.Size = new System.Drawing.Size(34, 28);
+            this.tool_luuu.Text = "Sửa";
+            this.tool_luuu.Click += new System.EventHandler(this.tool_luuu_Click);
+
+            this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
+            // 
+            // tool_luu
+            // 
+            this.tool_luu.Name = "tool_luu";
+            this.tool_luu.Size = new System.Drawing.Size(41, 28);
+            this.tool_luu.Text = "Lưu";
+            // 
+            // cbMaloai
+            // 
+            this.cbMaloai.FormattingEnabled = true;
+            this.cbMaloai.Location = new System.Drawing.Point(412, 81);
+            this.cbMaloai.Name = "cbMaloai";
+            this.cbMaloai.Size = new System.Drawing.Size(165, 28);
+            this.cbMaloai.TabIndex = 20;
+            this.cbMaloai.SelectedIndexChanged += new System.EventHandler(this.cbMaloai_SelectedIndexChanged);
             // 
             // label9
             // 
@@ -180,16 +274,16 @@
             // 
             // picAnh
             // 
-            this.picAnh.Location = new System.Drawing.Point(999, 14);
+            this.picAnh.Location = new System.Drawing.Point(999, 35);
             this.picAnh.Name = "picAnh";
-            this.picAnh.Size = new System.Drawing.Size(193, 149);
+            this.picAnh.Size = new System.Drawing.Size(193, 128);
             this.picAnh.TabIndex = 15;
             this.picAnh.TabStop = false;
             this.picAnh.Click += new System.EventHandler(this.picAnh_Click);
             // 
             // btnChonAnh
             // 
-            this.btnChonAnh.Location = new System.Drawing.Point(1054, 180);
+            this.btnChonAnh.Location = new System.Drawing.Point(1058, 184);
             this.btnChonAnh.Name = "btnChonAnh";
             this.btnChonAnh.Size = new System.Drawing.Size(98, 36);
             this.btnChonAnh.TabIndex = 14;
@@ -217,7 +311,7 @@
             // 
             // txtGiaBan
             // 
-            this.txtGiaBan.Location = new System.Drawing.Point(412, 38);
+            this.txtGiaBan.Location = new System.Drawing.Point(412, 29);
             this.txtGiaBan.Name = "txtGiaBan";
             this.txtGiaBan.Size = new System.Drawing.Size(165, 26);
             this.txtGiaBan.TabIndex = 9;
@@ -302,15 +396,6 @@
             this.txtTen.TabIndex = 0;
             this.txtTen.TextChanged += new System.EventHandler(this.txtTen_TextChanged);
             // 
-            // cbMaloai
-            // 
-            this.cbMaloai.FormattingEnabled = true;
-            this.cbMaloai.Location = new System.Drawing.Point(412, 81);
-            this.cbMaloai.Name = "cbMaloai";
-            this.cbMaloai.Size = new System.Drawing.Size(165, 28);
-            this.cbMaloai.TabIndex = 20;
-            this.cbMaloai.SelectedIndexChanged += new System.EventHandler(this.cbMaloai_SelectedIndexChanged);
-            // 
             // ThuCung
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -327,6 +412,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAnh)).EndInit();
             this.ResumeLayout(false);
 
@@ -354,11 +441,19 @@
         private System.Windows.Forms.Button btnChonAnh;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.PictureBox picAnh;
-        private System.Windows.Forms.DataGridViewImageColumn HinhAnh_File;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox txtMa;
         private System.Windows.Forms.TextBox txtSoLuong;
         private System.Windows.Forms.ComboBox cbMaloai;
+        private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.ToolStripButton tool_themm;
+        private System.Windows.Forms.ToolStripLabel tool_them;
+        private System.Windows.Forms.ToolStripButton tool_xoa;
+        private System.Windows.Forms.ToolStripLabel tool_xoaa;
+        private System.Windows.Forms.ToolStripButton tool_suaa;
+        private System.Windows.Forms.ToolStripLabel tool_sua;
+        private System.Windows.Forms.ToolStripButton tool_luuu;
+        private System.Windows.Forms.ToolStripLabel tool_luu;
     }
 }

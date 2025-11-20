@@ -433,7 +433,7 @@
     <None Include="Resources\pet-shop.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Images\ThuCung\poodle.jpg.jpg" />
+    <Content Include="Images\ThuCung\poodle.jpg" />
     <Content Include="SQLThuCung.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
