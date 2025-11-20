@@ -300,7 +300,7 @@
             // pictureBox3
             // 
             this.pictureBox3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
-            this.pictureBox3.Image = global::GiaoDienDangNhap.Properties.Resources.unnamed;
+            this.pictureBox3.Image = global::GiaoDienDangNhap.Properties.Resources.pet_shop;
             this.pictureBox3.Location = new System.Drawing.Point(3, 0);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(201, 100);

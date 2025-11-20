@@ -624,6 +624,16 @@ namespace GiaoDienDangNhap.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap pet_shop {
+            get {
+                object obj = ResourceManager.GetObject("pet-shop", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap pets {
             get {
                 object obj = ResourceManager.GetObject("pets", resourceCulture);

@@ -83,11 +83,12 @@
             // 
             // label3
             // 
+            this.label3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.label3.Font = new System.Drawing.Font("Times New Roman", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(163)));
             this.label3.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.label3.Location = new System.Drawing.Point(3, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(986, 103);
+            this.label3.Size = new System.Drawing.Size(1016, 103);
             this.label3.TabIndex = 0;
             this.label3.Text = "PET SHOP";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;

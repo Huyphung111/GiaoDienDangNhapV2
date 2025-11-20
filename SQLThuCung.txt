@@ -1,0 +1,351 @@
+﻿-- =============================================
+-- TẠO DATABASE
+-- =============================================
+IF DB_ID('QUANLY_PETSHOP_V9') IS NOT NULL
+    DROP DATABASE QUANLY_PETSHOP_V9;
+GO
+
+CREATE DATABASE QUANLY_PETSHOP_V9;
+GO
+USE QUANLY_PETSHOP_V9;
+GO
+
+-- =============================================
+-- 1. PHÂN QUYỀN
+-- =============================================
+CREATE TABLE PhanQuyen (
+    MaPhanQuyen INT IDENTITY(1,1) PRIMARY KEY,
+    TenQuyen NVARCHAR(50) NOT NULL UNIQUE,
+    TrangThai BIT DEFAULT 1
+);
+GO
+
+-- =============================================
+-- 2. NGƯỜI DÙNG
+-- =============================================
+CREATE TABLE NguoiDung (
+    MaNguoiDung INT IDENTITY(1,1) PRIMARY KEY,
+    TenDangNhap NVARCHAR(50) NOT NULL UNIQUE,
+    MatKhau NVARCHAR(255) NOT NULL,
+    HoTen NVARCHAR(100),
+    Email NVARCHAR(100),
+    SoDienThoai NVARCHAR(20),
+    MaPhanQuyen INT NOT NULL,
+    TrangThai BIT DEFAULT 1,
+    NgayTao DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (MaPhanQuyen) REFERENCES PhanQuyen(MaPhanQuyen)
+);
+GO
+CREATE UNIQUE INDEX IX_NguoiDung_Email_NotNull
+ON NguoiDung (Email)
+WHERE Email IS NOT NULL;
+GO
+
+-- =============================================
+-- 3. LOẠI THÚ CƯNG
+-- =============================================
+CREATE TABLE LoaiThuCung (
+    MaLoai INT PRIMARY KEY,
+    TenLoai NVARCHAR(100) NOT NULL,
+    MoTa NVARCHAR(200)
+);
+GO
+
+-- =============================================
+-- 4. THÚ CƯNG
+-- =============================================
+CREATE TABLE ThuCung (
+    MaThuCung NVARCHAR(20) PRIMARY KEY,
+    TenThuCung NVARCHAR(100) NOT NULL,
+    MaLoai INT NOT NULL,
+    Tuoi INT,
+    GioiTinh NVARCHAR(10),
+    GiaBan DECIMAL(18,2) CHECK (GiaBan >= 0),
+    SoLuong INT CHECK (SoLuong >= 0),
+    MoTa NVARCHAR(200),
+    HinhAnh NVARCHAR(255),
+    FOREIGN KEY (MaLoai) REFERENCES LoaiThuCung(MaLoai)
+);
+GO
+
+-- =============================================
+-- 5. KHÁCH HÀNG
+-- =============================================
+CREATE TABLE KhachHang (
+    MaKH NVARCHAR(20) PRIMARY KEY,
+    MaNguoiDung INT NOT NULL UNIQUE,
+    DiaChi NVARCHAR(200),
+    NgaySinh DATE,
+    FOREIGN KEY (MaNguoiDung) REFERENCES NguoiDung(MaNguoiDung)
+);
+GO
+
+-- =============================================
+-- 6. ĐƠN HÀNG
+-- =============================================
+CREATE TABLE DonHang (
+    MaDonHang NVARCHAR(20) PRIMARY KEY,
+    MaKH NVARCHAR(20) NOT NULL,
+    NgayDat DATETIME DEFAULT GETDATE(),
+    TongTien DECIMAL(18,2) CHECK (TongTien >= 0),
+    TrangThai NVARCHAR(50) DEFAULT N'Chờ xử lý',
+    FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH)
+);
+GO
+
+-- =============================================
+-- 7. NHÀ CUNG CẤP
+-- =============================================
+CREATE TABLE NhaCungCap (
+    MaNCC NVARCHAR(20) PRIMARY KEY,
+    TenNCC NVARCHAR(100) NOT NULL,
+    SoDienThoai NVARCHAR(20),
+    DiaChi NVARCHAR(200)
+);
+GO
+
+-- =============================================
+-- 8. SẢN PHẨM PHỤ KIỆN
+-- =============================================
+CREATE TABLE SanPhamPhuKien (
+    MaSP NVARCHAR(20) PRIMARY KEY,
+    TenSP NVARCHAR(100) NOT NULL,
+    MaNCC NVARCHAR(20) NOT NULL,
+    GiaBan DECIMAL(18,2) CHECK (GiaBan >= 0),
+    SoLuong INT CHECK (SoLuong >= 0),
+    MoTa NVARCHAR(200),
+    HinhAnh NVARCHAR(255),
+    FOREIGN KEY (MaNCC) REFERENCES NhaCungCap(MaNCC)
+);
+GO
+
+-- =============================================
+-- 9. CHI TIẾT ĐƠN HÀNG
+-- =============================================
+CREATE TABLE ChiTietDonHang (
+    MaCTDH NVARCHAR(20) PRIMARY KEY,
+    MaDonHang NVARCHAR(20) NOT NULL,
+    LoaiSanPham NVARCHAR(20) CHECK (LoaiSanPham IN (N'Thú cưng', N'Phụ kiện')),
+    MaThuCung NVARCHAR(20) NULL,
+    MaSP NVARCHAR(20) NULL,
+    SoLuong INT CHECK (SoLuong > 0),
+    DonGia DECIMAL(18,2) CHECK (DonGia >= 0),
+    ThanhTien AS (SoLuong * DonGia) PERSISTED,
+    FOREIGN KEY (MaDonHang) REFERENCES DonHang(MaDonHang),
+    FOREIGN KEY (MaThuCung) REFERENCES ThuCung(MaThuCung),
+    FOREIGN KEY (MaSP) REFERENCES SanPhamPhuKien(MaSP),
+    CONSTRAINT CK_ChiTietDonHang CHECK (
+        (LoaiSanPham = N'Thú cưng' AND MaThuCung IS NOT NULL AND MaSP IS NULL) OR
+        (LoaiSanPham = N'Phụ kiện' AND MaSP IS NOT NULL AND MaThuCung IS NULL)
+    )
+);
+GO
+
+-- =============================================
+-- 10. DỊCH VỤ
+-- =============================================
+CREATE TABLE DichVu (
+    MaDV NVARCHAR(20) PRIMARY KEY,
+    TenDV NVARCHAR(100) NOT NULL,
+    Gia DECIMAL(18,2) CHECK (Gia >= 0),
+    MoTa NVARCHAR(200)
+);
+GO
+
+-- =============================================
+-- 11. PHIẾU DỊCH VỤ
+-- =============================================
+CREATE TABLE PhieuDichVu (
+    MaPhieu NVARCHAR(20) PRIMARY KEY,
+    MaKH NVARCHAR(20) NOT NULL,
+    MaDV NVARCHAR(20) NOT NULL,
+    NgayDat DATETIME DEFAULT GETDATE(),
+    NgayThucHien DATETIME,
+    GiaDichVu DECIMAL(18,2) CHECK (GiaDichVu >= 0),
+    TrangThai NVARCHAR(50) DEFAULT N'Đang xử lý',
+    GhiChu NVARCHAR(200),
+    FOREIGN KEY (MaKH) REFERENCES KhachHang(MaKH),
+    FOREIGN KEY (MaDV) REFERENCES DichVu(MaDV)
+);
+GO
+
+-- =============================================
+-- 12. HÓA ĐƠN
+-- =============================================
+CREATE TABLE HoaDon (
+    MaHD NVARCHAR(20) PRIMARY KEY,
+    MaDonHang NVARCHAR(20) NULL,
+    MaPhieu NVARCHAR(20) NULL,
+    LoaiHoaDon NVARCHAR(20) CHECK (LoaiHoaDon IN (N'Đơn hàng', N'Dịch vụ')),
+    NgayTao DATETIME DEFAULT GETDATE(),
+    TongTien DECIMAL(18,2) CHECK (TongTien >= 0),
+    TrangThai NVARCHAR(50) DEFAULT N'Đã thanh toán',
+    GhiChu NVARCHAR(200),
+    FOREIGN KEY (MaDonHang) REFERENCES DonHang(MaDonHang),
+    FOREIGN KEY (MaPhieu) REFERENCES PhieuDichVu(MaPhieu),
+    CONSTRAINT CK_HoaDon CHECK (
+        (LoaiHoaDon = N'Đơn hàng' AND MaDonHang IS NOT NULL AND MaPhieu IS NULL) OR
+        (LoaiHoaDon = N'Dịch vụ' AND MaPhieu IS NOT NULL AND MaDonHang IS NULL)
+    )
+);
+GO
+
+-- =============================================
+-- 13. CHI TIẾT HÓA ĐƠN
+-- =============================================
+CREATE TABLE ChiTietHoaDon (
+    MaCTHD NVARCHAR(20) PRIMARY KEY,
+    MaHD NVARCHAR(20) NOT NULL,
+    MoTa NVARCHAR(200),
+    SoLuong INT CHECK (SoLuong > 0),
+    DonGia DECIMAL(18,2) CHECK (DonGia >= 0),
+    ThanhTien AS (SoLuong * DonGia) PERSISTED,
+    FOREIGN KEY (MaHD) REFERENCES HoaDon(MaHD)
+);
+GO
+
+-- =============================================
+-- 14. BÁO CÁO THỐNG KÊ
+-- =============================================
+CREATE TABLE BaoCaoThongKe (
+    MaBaoCao NVARCHAR(20) PRIMARY KEY,
+    TenBaoCao NVARCHAR(100),
+    NgayLap DATETIME DEFAULT GETDATE(),
+    TuNgay DATETIME,
+    DenNgay DATETIME,
+    TongDoanhThuThuCung DECIMAL(18,2) DEFAULT 0,
+    TongDoanhThuPhuKien DECIMAL(18,2) DEFAULT 0,
+    TongDoanhThuDichVu DECIMAL(18,2) DEFAULT 0,
+    TongDoanhThu DECIMAL(18,2) DEFAULT 0,
+    SoDonHang INT DEFAULT 0,
+    SoThuCungBan INT DEFAULT 0,
+    SoPhuKienBan INT DEFAULT 0,
+    SoDichVu INT DEFAULT 0,
+    MaNguoiDung INT,
+    GhiChu NVARCHAR(200),
+    FOREIGN KEY (MaNguoiDung) REFERENCES NguoiDung(MaNguoiDung)
+);
+GO
+
+-- =============================================
+-- DỮ LIỆU MẪU
+-- =============================================
+
+-- 1. Phân quyền
+INSERT INTO PhanQuyen (TenQuyen) VALUES
+(N'Admin'), (N'Khách hàng');
+GO
+
+-- 2. Người dùng
+INSERT INTO NguoiDung (TenDangNhap, MatKhau, HoTen, Email, SoDienThoai, MaPhanQuyen)
+VALUES
+(N'admin', N'123456', N'Quản trị', N'admin@petshop.com', N'0909123456', 1),
+(N'khachhang1', N'123456', N'Nguyen Van A', N'van.a@gmail.com', N'0909123457', 2),
+(N'khachhang2', N'123456', N'Tran Thi B', N'b@gmail.com', N'0909123458', 2);
+GO
+
+-- 3. Loại thú cưng
+INSERT INTO LoaiThuCung (MaLoai, TenLoai, MoTa) VALUES
+(1, N'Chó', N'Thuộc nhóm thú cưng phổ biến'),
+(2, N'Mèo', N'Dễ nuôi và thân thiện'),
+(3, N'Chim', N'Các loại chim cảnh'),
+(4, N'Cá', N'Cá cảnh nhiều màu sắc');
+GO
+
+-- 4. Thú cưng
+INSERT INTO ThuCung (MaThuCung, TenThuCung, MaLoai, Tuoi, GioiTinh, GiaBan, SoLuong, MoTa, HinhAnh) VALUES
+('TC001', N'Chó Poodle', 1, 1, N'Đực', 3500000, 5, N'Poodle mini dễ thương', 'poodle.jpg'),
+('TC002', N'Cún Phốc Sóc', 1, 1, N'Cái', 4500000, 3, N'Phốc sóc nhỏ nhắn', 'phocsoc.jpg'),
+('TC003', N'Mèo Anh lông ngắn', 2, 2, N'Đực', 3000000, 4, N'Mèo ALN thân thiện', 'aln.jpg'),
+('TC004', N'Mèo Ba Tư', 2, 3, N'Cái', 5000000, 2, N'Mèo Ba Tư sang trọng', 'batu.jpg');
+GO
+
+-- 5. Khách hàng
+INSERT INTO KhachHang (MaKH, MaNguoiDung, DiaChi, NgaySinh) VALUES
+('KH001', 2, N'HCM', '1998-05-12'),
+('KH002', 3, N'Hà Nội', '1995-10-20');
+GO
+
+-- 6. Đơn hàng
+INSERT INTO DonHang (MaDonHang, MaKH, TongTien, TrangThai) VALUES
+('DH001', 'KH001', 6500000, N'Chờ xử lý');
+GO
+
+-- 7. Nhà cung cấp
+INSERT INTO NhaCungCap (MaNCC, TenNCC, SoDienThoai, DiaChi) VALUES
+('NCC001', N'Công ty ABC', '0909123456', N'HCM');
+GO
+
+-- 8. Sản phẩm phụ kiện
+INSERT INTO SanPhamPhuKien (MaSP, TenSP, MaNCC, GiaBan, SoLuong, MoTa, HinhAnh) VALUES
+('SP001', N'Chuồng chó', 'NCC001', 500000, 10, N'Chuồng cho chó nhỏ', 'chuong.jpg');
+GO
+
+-- 9. Chi tiết đơn hàng
+INSERT INTO ChiTietDonHang (MaCTDH, MaDonHang, LoaiSanPham, MaThuCung, MaSP, SoLuong, DonGia) VALUES
+('CTDH001', 'DH001', N'Thú cưng', 'TC001', NULL, 1, 3500000);
+GO
+
+-- 10. Dịch vụ
+INSERT INTO DichVu (MaDV, TenDV, Gia, MoTa) VALUES
+('DV001', N'Tắm chó', 200000, N'Dịch vụ tắm cho chó');
+GO
+
+-- 11. Phiếu dịch vụ
+INSERT INTO PhieuDichVu (MaPhieu, MaKH, MaDV, GiaDichVu) VALUES
+('PDV001', 'KH001', 'DV001', 200000);
+GO
+
+-- 12. Hóa đơn
+INSERT INTO HoaDon (MaHD, MaDonHang, MaPhieu, LoaiHoaDon, TongTien) VALUES
+('HD001', 'DH001', NULL, N'Đơn hàng', 6500000),
+('HD002', NULL, 'PDV001', N'Dịch vụ', 200000);
+GO
+
+-- 13. Chi tiết hóa đơn
+INSERT INTO ChiTietHoaDon (MaCTHD, MaHD, MoTa, SoLuong, DonGia) VALUES
+('CTHD001', 'HD001', N'Chó Poodle', 1, 3500000),
+('CTHD002', 'HD002', N'Tắm chó', 1, 200000);
+GO
+
+-- 1. Phân quyền
+SELECT * FROM PhanQuyen;
+
+-- 2. Người dùng
+SELECT * FROM NguoiDung;
+
+-- 3. Loại thú cưng
+SELECT * FROM LoaiThuCung;
+
+-- 4. Thú cưng
+SELECT * FROM ThuCung;
+
+-- 5. Khách hàng
+SELECT * FROM KhachHang;
+
+-- 6. Đơn hàng
+SELECT * FROM DonHang;
+
+-- 7. Nhà cung cấp
+SELECT * FROM NhaCungCap;
+
+-- 8. Sản phẩm phụ kiện
+SELECT * FROM SanPhamPhuKien;
+
+-- 9. Chi tiết đơn hàng
+SELECT * FROM ChiTietDonHang;
+
+-- 10. Dịch vụ
+SELECT * FROM DichVu;
+
+-- 11. Phiếu dịch vụ
+SELECT * FROM PhieuDichVu;
+
+-- 12. Hóa đơn
+SELECT * FROM HoaDon;
+
+-- 13. Chi tiết hóa đơn
+SELECT * FROM ChiTietHoaDon;
+
+-- 14. Báo cáo thống kê
+SELECT * FROM BaoCaoThongKe;

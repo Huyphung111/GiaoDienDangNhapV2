@@ -420,5 +420,11 @@
   <ItemGroup>
     <None Include="Resources\exit.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pet-shop.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SQLThuCung.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
