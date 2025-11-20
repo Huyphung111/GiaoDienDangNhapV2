@@ -141,6 +141,20 @@ namespace GiaoDienDangNhap
                     imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                     dataGridView1.Columns.Insert(0, imgCol);
                 }
+
+                if (dataGridView1.Rows.Count > 0)
+                {
+                    dataGridView1.ClearSelection();
+                    dataGridView1.Rows[0].Selected = true;
+
+                    var tenCol = dataGridView1.Columns["TenThuCung"];
+                    if (tenCol != null)
+                    {
+                        dataGridView1.CurrentCell = dataGridView1.Rows[0].Cells[tenCol.Index];
+                    }
+
+                    dataGridView1_CellClick(this, new DataGridViewCellEventArgs(0, 0));
+                }
             }
         }
 

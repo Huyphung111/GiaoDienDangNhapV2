@@ -116,6 +116,20 @@ namespace GiaoDienDangNhap
 
                 // Auto resize columns
                 datagriw_sanphamphukien.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+                if (datagriw_sanphamphukien.Rows.Count > 0)
+                {
+                    datagriw_sanphamphukien.ClearSelection();
+                    datagriw_sanphamphukien.Rows[0].Selected = true;
+
+                    var tenSpColumn = datagriw_sanphamphukien.Columns["TenSP"];
+                    if (tenSpColumn != null)
+                    {
+                        datagriw_sanphamphukien.CurrentCell = datagriw_sanphamphukien.Rows[0].Cells[tenSpColumn.Index];
+                    }
+
+                    datagriw_sanphamphukien_SelectionChanged(null, EventArgs.Empty);
+                }
             }
             catch (Exception ex)
             {

@@ -31,22 +31,8 @@ namespace GiaoDienDangNhap
         // ═══════════════════════════════════════════════════════════
         private void button1_Click(object sender, EventArgs e)
         {
-            // Xóa các control cũ trong panel (nếu có)
-            panel_NoiDung.Controls.Clear();
-
-            // Tạo instance của form ThuCungGiaoDien
             ThuCungGiaoDien formThuCung = new ThuCungGiaoDien();
-
-            // Set các thuộc tính để form hiển thị như một control
-            formThuCung.TopLevel = false;
-            formThuCung.FormBorderStyle = FormBorderStyle.None;
-            formThuCung.Dock = DockStyle.Fill;
-
-            // Thêm form vào panel
-            panel_NoiDung.Controls.Add(formThuCung);
-
-            // Hiển thị form
-            formThuCung.Show();
+            LoadFormToPanel(formThuCung);
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -67,12 +53,8 @@ namespace GiaoDienDangNhap
         // ═══════════════════════════════════════════════════════════
         private void button3_Click(object sender, EventArgs e)
         {
-            // Xóa các control cũ trong panel (nếu có)
-            panel_NoiDung.Controls.Clear();
-
-            // TODO: Thêm form phụ kiện nếu có
-            MessageBox.Show("Form Phụ Kiện đang được phát triển!", "Thông báo",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            SanPham formSanPham = new SanPham();
+            LoadFormToPanel(formSanPham);
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -132,6 +114,18 @@ namespace GiaoDienDangNhap
 
             // Hiển thị form
             formTaiKhoan.Show();
+        }
+
+        private void LoadFormToPanel(Form form)
+        {
+            panel_NoiDung.Controls.Clear();
+
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
+
+            panel_NoiDung.Controls.Add(form);
+            form.Show();
         }
     }
 }
