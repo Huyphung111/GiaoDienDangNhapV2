@@ -22,6 +22,9 @@ namespace GiaoDienDangNhap
             InitializeComponent();
             // Gọi Load ngay trong constructor
             this.Load += SanPham_Load;
+
+            // Đảm bảo hình ảnh được nạp ngay sau khi dữ liệu binding xong
+            this.datagriw_sanphamphukien.DataBindingComplete += datagriw_sanphamphukien_DataBindingComplete;
         }
 
         // ===== FORM LOAD =====
@@ -195,6 +198,11 @@ namespace GiaoDienDangNhap
                     imagePath = "";
                 }
             }
+        }
+
+        private void datagriw_sanphamphukien_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            LoadAnhVaoGrid();
         }
 
         private void LoadAnhVaoGrid()

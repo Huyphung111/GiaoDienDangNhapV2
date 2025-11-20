@@ -15,6 +15,7 @@ namespace GiaoDienDangNhap
         public ThuCung()
         {
             InitializeComponent();
+            this.dataGridView1.DataBindingComplete += dataGridView1_DataBindingComplete;
         }
 
         // ====================================================
@@ -159,6 +160,11 @@ namespace GiaoDienDangNhap
                 // Nạp lại hình ảnh ngay sau khi DataGridView được bind dữ liệu
                 LoadAnhVaoGrid();
             }
+        }
+
+        private void dataGridView1_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            LoadAnhVaoGrid();
         }
 
         // ====================================================
