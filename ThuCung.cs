@@ -61,17 +61,28 @@ namespace GiaoDienDangNhap
             using (SqlConnection cn = new SqlConnection(cnnStr))
             {
                 cn.Open();
-                SqlDataAdapter da = new SqlDataAdapter("SELECT MaLoai, TenLoai FROM LoaiThuCung", cn);
+                SqlDataAdapter da = new SqlDataAdapter("SELECT MaLoai, TenLoai FROM LoaiThuCung ORDER BY TenLoai", cn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
+
+                // Thêm dòng "Tất cả" vào đầu cho ComboBox tìm kiếm
+                DataRow rowAll = dt.NewRow();
+                rowAll["MaLoai"] = 0;
+                rowAll["TenLoai"] = "-- Tất cả --";
+                dt.Rows.InsertAt(rowAll, 0);
 
                 // Combobox tìm kiếm
                 cboLoai.DataSource = dt;
                 cboLoai.DisplayMember = "TenLoai";
                 cboLoai.ValueMember = "MaLoai";
+                cboLoai.SelectedIndex = 0; // Chọn "Tất cả" mặc định
 
-                // Combobox chọn loại khi thêm
-                cbMaloai.DataSource = dt.Copy();
+                // Combobox chọn loại khi thêm (không có "Tất cả")
+                SqlDataAdapter da2 = new SqlDataAdapter("SELECT MaLoai, TenLoai FROM LoaiThuCung ORDER BY TenLoai", cn);
+                DataTable dt2 = new DataTable();
+                da2.Fill(dt2);
+
+                cbMaloai.DataSource = dt2;
                 cbMaloai.DisplayMember = "TenLoai";
                 cbMaloai.ValueMember = "MaLoai";
             }
@@ -80,24 +91,44 @@ namespace GiaoDienDangNhap
         // ====================================================
         // 2. Load danh sách thú cưng
         // ====================================================
-        void LoadThuCung(string keyword = "")
+        void LoadThuCung(string keyword = "", int maLoai = 0)
         {
             using (SqlConnection cn = new SqlConnection(cnnStr))
             {
                 cn.Open();
 
-                string sql = "SELECT * FROM ThuCung";
-                if (keyword != "")
-                    sql += $" WHERE TenThuCung LIKE N'%{keyword}%'";
+                string sql = @"SELECT tc.*, ltc.TenLoai 
+                              FROM ThuCung tc 
+                              INNER JOIN LoaiThuCung ltc ON tc.MaLoai = ltc.MaLoai 
+                              WHERE 1=1";
 
-                SqlDataAdapter da = new SqlDataAdapter(sql, cn);
+                // Tìm theo tên
+                if (!string.IsNullOrWhiteSpace(keyword))
+                    sql += " AND tc.TenThuCung LIKE @keyword";
+
+                // Lọc theo loại
+                if (maLoai > 0)
+                    sql += " AND tc.MaLoai = @maLoai";
+
+                sql += " ORDER BY tc.MaThuCung";
+
+                SqlCommand cmd = new SqlCommand(sql, cn);
+
+                if (!string.IsNullOrWhiteSpace(keyword))
+                    cmd.Parameters.AddWithValue("@keyword", "%" + keyword + "%");
+
+                if (maLoai > 0)
+                    cmd.Parameters.AddWithValue("@maLoai", maLoai);
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
                 dataGridView1.DataSource = dt;
 
                 // Ẩn cột HinhAnh gốc (chứa tên file text)
-                dataGridView1.Columns["HinhAnh"].Visible = false;
+                if (dataGridView1.Columns.Contains("HinhAnh"))
+                    dataGridView1.Columns["HinhAnh"].Visible = false;
 
                 // Kiểm tra và tạo cột Image nếu chưa có
                 if (!dataGridView1.Columns.Contains("HinhAnh_Image"))
@@ -107,7 +138,7 @@ namespace GiaoDienDangNhap
                     imgCol.HeaderText = "Hình Ảnh";
                     imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
                     imgCol.Width = 120;
-                    imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None; // Cố định độ rộng cột ảnh
+                    imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                     dataGridView1.Columns.Insert(0, imgCol);
                 }
             }
@@ -118,22 +149,15 @@ namespace GiaoDienDangNhap
         // ====================================================
         void LoadAnhVaoGrid()
         {
-            // Đổi đường dẫn sang thư mục gốc của solution
             string projectPath = Application.StartupPath;
-            // Lùi 2 cấp từ bin\Debug lên thư mục gốc
             string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
             string folder = solutionPath + "\\Images\\ThuCung\\";
 
-            // Tạo thư mục nếu chưa có
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
-                MessageBox.Show($"Đã tạo thư mục: {folder}\nVui lòng copy ảnh vào đây!", "Thông báo");
                 return;
             }
-
-            int soAnhThanhCong = 0;
-            int soAnhLoi = 0;
 
             foreach (DataGridViewRow row in dataGridView1.Rows)
             {
@@ -141,7 +165,6 @@ namespace GiaoDienDangNhap
 
                 try
                 {
-                    // Lấy tên file từ cột HinhAnh (cột ẩn chứa tên file)
                     var val = row.Cells["HinhAnh"].Value;
                     if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
                     {
@@ -152,46 +175,24 @@ namespace GiaoDienDangNhap
                     string file = val.ToString().Trim();
                     string fullPath = folder + file;
 
-                    // Gán ảnh vào cột HinhAnh_Image
                     if (File.Exists(fullPath))
                     {
-                        // Tạo image mới để tránh lock file
                         using (var img = Image.FromFile(fullPath))
                         {
                             row.Cells["HinhAnh_Image"].Value = new Bitmap(img);
                         }
-                        soAnhThanhCong++;
                     }
                     else
                     {
                         row.Cells["HinhAnh_Image"].Value = null;
-                        soAnhLoi++;
-                        // Debug: Hiển thị file không tìm thấy
-                        System.Diagnostics.Debug.WriteLine($"Không tìm thấy: {fullPath}");
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
                     row.Cells["HinhAnh_Image"].Value = null;
-                    soAnhLoi++;
-                    System.Diagnostics.Debug.WriteLine($"Lỗi load ảnh: {ex.Message}");
                 }
             }
-
-            // Hiển thị kết quả debug
-            if (soAnhLoi > 0)
-            {
-                MessageBox.Show($"Đã load {soAnhThanhCong} ảnh thành công\n" +
-                               $"Không tìm thấy {soAnhLoi} ảnh\n\n" +
-                               $"Thư mục ảnh: {folder}\n\n" +
-                               $"Kiểm tra Output window để xem chi tiết!",
-                               "Kết quả load ảnh",
-                               MessageBoxButtons.OK,
-                               MessageBoxIcon.Information);
-            }
         }
-
-
 
         // ====================================================
         // 4. Chọn ảnh
@@ -206,12 +207,10 @@ namespace GiaoDienDangNhap
                 picAnh.Image = Image.FromFile(dlg.FileName);
                 fileAnh = Path.GetFileName(dlg.FileName);
 
-                // Đổi đường dẫn sang thư mục gốc của solution
                 string projectPath = Application.StartupPath;
                 string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
                 string dest = solutionPath + "\\Images\\ThuCung\\" + fileAnh;
 
-                // Tạo thư mục nếu chưa có
                 string folder = Path.GetDirectoryName(dest);
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
@@ -254,18 +253,16 @@ namespace GiaoDienDangNhap
         }
 
         // ====================================================
-        // 6. Click vào bảng → hiện dữ liệu lên Form - ĐÃ SỬA
+        // 6. Click vào bảng → hiện dữ liệu lên Form
         // ====================================================
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Bỏ qua nếu click vào header
             if (e.RowIndex < 0) return;
 
             try
             {
                 DataGridViewRow r = dataGridView1.Rows[e.RowIndex];
 
-                // Load dữ liệu lên form
                 txtMa.Text = r.Cells["MaThuCung"].Value?.ToString() ?? "";
                 txtTen.Text = r.Cells["TenThuCung"].Value?.ToString() ?? "";
                 txtTuoi.Text = r.Cells["Tuoi"].Value?.ToString() ?? "";
@@ -273,14 +270,12 @@ namespace GiaoDienDangNhap
                 txtSoLuong.Text = r.Cells["SoLuong"].Value?.ToString() ?? "";
                 txtMota.Text = r.Cells["MoTa"].Value?.ToString() ?? "";
 
-                // Xử lý GioiTinh
                 var gioiTinhValue = r.Cells["GioiTinh"].Value;
                 if (gioiTinhValue != null && !string.IsNullOrWhiteSpace(gioiTinhValue.ToString()))
                 {
                     cboGioiTinh.Text = gioiTinhValue.ToString();
                 }
 
-                // Xử lý MaLoai - Hiển thị tên loại
                 var maLoaiValue = r.Cells["MaLoai"].Value;
                 if (maLoaiValue != null)
                 {
@@ -290,26 +285,21 @@ namespace GiaoDienDangNhap
                     }
                     catch
                     {
-                        // Nếu không tìm thấy, để mặc định
                         if (cbMaloai.Items.Count > 0)
                             cbMaloai.SelectedIndex = 0;
                     }
                 }
 
-                // Load ảnh
                 var hinhAnhValue = r.Cells["HinhAnh"].Value;
                 if (hinhAnhValue != null && !string.IsNullOrWhiteSpace(hinhAnhValue.ToString()))
                 {
                     string file = hinhAnhValue.ToString().Trim();
-
-                    // Đổi đường dẫn sang thư mục gốc của solution
                     string projectPath = Application.StartupPath;
                     string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
                     string fullPath = solutionPath + "\\Images\\ThuCung\\" + file;
 
                     if (File.Exists(fullPath))
                     {
-                        // Dispose ảnh cũ trước khi load ảnh mới
                         if (picAnh.Image != null)
                         {
                             var oldImage = picAnh.Image;
@@ -332,12 +322,11 @@ namespace GiaoDienDangNhap
                     fileAnh = "";
                 }
 
-                // Đặt focus vào tên để dễ chỉnh sửa
                 txtTen.Focus();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi load dữ liệu: {ex.Message}\n\nChi tiết: {ex.StackTrace}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi load dữ liệu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -395,12 +384,47 @@ namespace GiaoDienDangNhap
         }
 
         // ====================================================
-        // 9. Tìm
+        // 9. NÚT TÌM - TÌM THEO TÊN VÀ LOẠI
         // ====================================================
         private void btnTim_Click(object sender, EventArgs e)
         {
-            LoadThuCung(txtTim.Text);
-            LoadAnhVaoGrid();
+            try
+            {
+                // Lấy từ khóa tìm kiếm
+                string keyword = txtTim.Text.Trim();
+
+                // Lấy mã loại từ ComboBox
+                int maLoai = 0;
+                if (cboLoai.SelectedValue != null)
+                {
+                    maLoai = Convert.ToInt32(cboLoai.SelectedValue);
+                }
+
+                // Load dữ liệu với điều kiện lọc
+                LoadThuCung(keyword, maLoai);
+                LoadAnhVaoGrid();
+
+                // Thông báo kết quả
+                int soKetQua = dataGridView1.Rows.Count;
+                string thongBao = $"Tìm thấy {soKetQua} kết quả";
+
+                if (!string.IsNullOrWhiteSpace(keyword))
+                    thongBao += $" với từ khóa '{keyword}'";
+
+                if (maLoai > 0)
+                {
+                    string tenLoai = cboLoai.Text;
+                    thongBao += $" thuộc loại '{tenLoai}'";
+                }
+
+                MessageBox.Show(thongBao, "Kết quả tìm kiếm",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi tìm kiếm: {ex.Message}", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // ====================================================
@@ -424,9 +448,8 @@ namespace GiaoDienDangNhap
             if (cboGioiTinh.Items.Count > 0)
                 cboGioiTinh.SelectedIndex = 0;
 
-            // Cho phép chỉnh sửa
             SetReadOnlyMode(false);
-            txtMa.ReadOnly = false; // Cho phép nhập mã mới
+            txtMa.ReadOnly = false;
 
             txtMa.Focus();
         }
@@ -460,7 +483,6 @@ namespace GiaoDienDangNhap
 
                         MessageBox.Show("Xóa thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                        // Xóa trắng form và quay về ReadOnly
                         tool_themm_Click(sender, e);
                         SetReadOnlyMode(true);
 
@@ -484,7 +506,6 @@ namespace GiaoDienDangNhap
                 return;
             }
 
-            // Cho phép chỉnh sửa (trừ mã)
             SetReadOnlyMode(false);
             txtTen.Focus();
         }
@@ -512,14 +533,12 @@ namespace GiaoDienDangNhap
                 {
                     cn.Open();
 
-                    // Kiểm tra mã đã tồn tại chưa
                     SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM ThuCung WHERE MaThuCung=@ma", cn);
                     checkCmd.Parameters.AddWithValue("@ma", txtMa.Text);
                     int count = (int)checkCmd.ExecuteScalar();
 
                     if (count > 0)
                     {
-                        // Nếu đã tồn tại -> Sửa
                         string sql = @"UPDATE ThuCung SET 
                                        TenThuCung=@ten, MaLoai=@loai, Tuoi=@tuoi, GioiTinh=@gt,
                                        GiaBan=@gia, SoLuong=@sl, MoTa=@mota, HinhAnh=@anh
@@ -542,7 +561,6 @@ namespace GiaoDienDangNhap
                     }
                     else
                     {
-                        // Nếu chưa tồn tại -> Thêm mới
                         string sql = @"INSERT INTO ThuCung
                                        (MaThuCung, TenThuCung, MaLoai, Tuoi, GioiTinh, GiaBan, SoLuong, MoTa, HinhAnh)
                                        VALUES (@ma, @ten, @loai, @tuoi, @gt, @gia, @sl, @mota, @anh)";
@@ -566,7 +584,6 @@ namespace GiaoDienDangNhap
                     LoadThuCung();
                     LoadAnhVaoGrid();
 
-                    // Quay về chế độ ReadOnly
                     SetReadOnlyMode(true);
                 }
                 catch (Exception ex)
@@ -577,7 +594,7 @@ namespace GiaoDienDangNhap
         }
 
         // ====================================================
-        // GIỮ LẠI TẤT CẢ EVENT RỖNG — KHÔNG XOÁ
+        // GIỮ LẠI TẤT CẢ EVENT RỖNG
         // ====================================================
         private void txtTen_TextChanged(object sender, EventArgs e) { }
         private void txtTuoi_TextChanged(object sender, EventArgs e) { }
