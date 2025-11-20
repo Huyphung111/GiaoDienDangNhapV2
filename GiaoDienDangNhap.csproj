@@ -108,6 +108,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SanPham.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SanPham.Designer.cs">
+      <DependentUpon>SanPham.cs</DependentUpon>
+    </Compile>
     <Compile Include="ThongKeBaoCao.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -154,6 +160,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SanPham.resx">
+      <DependentUpon>SanPham.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ThongKeBaoCao.resx">
       <DependentUpon>ThongKeBaoCao.cs</DependentUpon>
     </EmbeddedResource>
@@ -433,6 +442,7 @@
     <None Include="Resources\pet-shop.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\SanPhamPhuKien\chuong.jpg" />
     <Content Include="Images\ThuCung\poodle.jpg" />
     <Content Include="SQLThuCung.txt" />
   </ItemGroup>

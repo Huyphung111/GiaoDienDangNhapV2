@@ -63,6 +63,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.txtTen = new System.Windows.Forms.TextBox();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel2.SuspendLayout();
@@ -116,6 +117,7 @@
             this.dataGridView1.RowTemplate.Height = 28;
             this.dataGridView1.Size = new System.Drawing.Size(1246, 232);
             this.dataGridView1.TabIndex = 1;
+            this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
             // panel2
@@ -220,8 +222,6 @@
             this.tool_luuu.Size = new System.Drawing.Size(34, 28);
             this.tool_luuu.Text = "Sửa";
             this.tool_luuu.Click += new System.EventHandler(this.tool_luuu_Click);
-
-            this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             // 
             // tool_luu
             // 
@@ -455,5 +455,6 @@
         private System.Windows.Forms.ToolStripLabel tool_sua;
         private System.Windows.Forms.ToolStripButton tool_luuu;
         private System.Windows.Forms.ToolStripLabel tool_luu;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
