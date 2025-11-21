@@ -29,28 +29,39 @@ namespace GiaoDienDangNhap
         // ═══════════════════════════════════════════════════════════
         // NÚT THÚ CƯNG
         // ═══════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════
+        // NÚT THÚ CƯNG
+        // ═══════════════════════════════════════════════════════════
         private void button1_Click(object sender, EventArgs e)
         {
-            // Xóa các control cũ trong panel (nếu có)
-            panel_NoiDung.Controls.Clear();
+            try
+            {
+                // Xóa các control cũ trong panel (nếu có)
+                panel_NoiDung.Controls.Clear();
 
-            // Tạo instance của form ThuCungGiaoDien
-            ThuCungGiaoDien formThuCung = new ThuCungGiaoDien();
+                // Tạo instance của form ThuCung
+                ThuCung formThuCung = new ThuCung();
 
-            // Set các thuộc tính để form hiển thị như một control
-            formThuCung.TopLevel = false;
-            formThuCung.FormBorderStyle = FormBorderStyle.None;
-            formThuCung.Dock = DockStyle.Fill;
+                // Set các thuộc tính để form hiển thị như một control
+                formThuCung.TopLevel = false;
+                formThuCung.FormBorderStyle = FormBorderStyle.None;
+                formThuCung.Dock = DockStyle.Fill;
 
-            // Thêm form vào panel
-            panel_NoiDung.Controls.Add(formThuCung);
+                // Thêm form vào panel
+                panel_NoiDung.Controls.Add(formThuCung);
 
-            // Hiển thị form
-            formThuCung.Show();
+                // Hiển thị form
+                formThuCung.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi mở form Thú Cưng: " + ex.Message + "\n\nStack Trace: " + ex.StackTrace,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // ═══════════════════════════════════════════════════════════
-        // NÚT DỊCH VỤ (nếu có button2)
+        // NÚT DỊCH VỤ
         // ═══════════════════════════════════════════════════════════
         private void button2_Click(object sender, EventArgs e)
         {
@@ -63,20 +74,14 @@ namespace GiaoDienDangNhap
         }
 
         // ═══════════════════════════════════════════════════════════
-        // NÚT PHỤ KIỆN (nếu có button3)
+        // NÚT PHỤ KIỆN (method cũ - giữ rỗng)
         // ═══════════════════════════════════════════════════════════
         private void button3_Click(object sender, EventArgs e)
         {
-            // Xóa các control cũ trong panel (nếu có)
-            panel_NoiDung.Controls.Clear();
-
-            // TODO: Thêm form phụ kiện nếu có
-            MessageBox.Show("Form Phụ Kiện đang được phát triển!", "Thông báo",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         // ═══════════════════════════════════════════════════════════
-        // NÚT HÓA ĐƠN (nếu có button4)
+        // NÚT HÓA ĐƠN
         // ═══════════════════════════════════════════════════════════
         private void button4_Click(object sender, EventArgs e)
         {
@@ -132,6 +137,41 @@ namespace GiaoDienDangNhap
 
             // Hiển thị form
             formTaiKhoan.Show();
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // NÚT PHỤ KIỆN - METHOD ĐÚNG
+        // ═══════════════════════════════════════════════════════════
+        private void button3_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                // Xóa các control cũ trong panel (nếu có)
+                panel_NoiDung.Controls.Clear();
+
+                // Tạo instance của form SanPham
+                SanPham formSanPham = new SanPham();
+
+                // Set các thuộc tính để form hiển thị như một control
+                formSanPham.TopLevel = false;
+                formSanPham.FormBorderStyle = FormBorderStyle.None;
+                formSanPham.Dock = DockStyle.Fill;
+
+                // Thêm form vào panel
+                panel_NoiDung.Controls.Add(formSanPham);
+
+                // Hiển thị form
+                formSanPham.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi mở form Sản Phẩm: " + ex.Message + "\n\nStack Trace: " + ex.StackTrace,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

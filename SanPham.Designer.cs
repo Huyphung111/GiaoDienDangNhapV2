@@ -156,7 +156,7 @@
             this.toolStripLabel4,
             this.tool_huy,
             this.toolStripLabel5});
-            this.toolStrip1.Location = new System.Drawing.Point(3, 22);//
+            this.toolStrip1.Location = new System.Drawing.Point(3, 22);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(972, 33);
             this.toolStrip1.TabIndex = 8;
@@ -274,7 +274,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(390, 133);
+            this.label5.Location = new System.Drawing.Point(390, 85);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(65, 20);
             this.label5.TabIndex = 4;
@@ -283,7 +283,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(361, 82);
+            this.label4.Location = new System.Drawing.Point(14, 184);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(114, 20);
             this.label4.TabIndex = 3;
@@ -292,7 +292,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(51, 184);
+            this.label3.Location = new System.Drawing.Point(390, 130);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(72, 20);
             this.label3.TabIndex = 2;
@@ -374,7 +374,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "SanPham";
             this.Text = "SanPham";
-            this.Load += new System.EventHandler(this.SanPham_Load_1);
+            this.Load += new System.EventHandler(this.SanPham_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);

@@ -20,11 +20,11 @@ namespace GiaoDienDangNhap
         public SanPham()
         {
             InitializeComponent();
-            // Gọi Load ngay trong constructor
-            this.Load += SanPham_Load;
+            // XÓA dòng này để tránh đăng ký event 2 lần
+            // this.Load += SanPham_Load;
         }
 
-        // ===== FORM LOAD =====
+        // ===== FORM LOAD - CHỈ GIỮ MỘT METHOD =====
         private void SanPham_Load(object sender, EventArgs e)
         {
             try
@@ -32,23 +32,34 @@ namespace GiaoDienDangNhap
                 conn = new SqlConnection(connectionString);
 
                 // Cấu hình PictureBox
-                pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+                if (pictureBox1 != null)
+                    pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
 
                 // Tăng chiều cao của dòng trong DataGridView
-                datagriw_sanphamphukien.RowTemplate.Height = 80;
+                if (datagriw_sanphamphukien != null)
+                {
+                    datagriw_sanphamphukien.RowTemplate.Height = 80;
+
+                    // Đăng ký event SelectionChanged (nếu chưa có trong Designer)
+                    datagriw_sanphamphukien.SelectionChanged += datagriw_sanphamphukien_SelectionChanged;
+
+                    // Set chế độ chọn cả dòng
+                    datagriw_sanphamphukien.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                    datagriw_sanphamphukien.MultiSelect = false;
+                }
 
                 // Test kết nối
                 conn.Open();
-                //MessageBox.Show("Kết nối thành công!", "Thông báo");
                 conn.Close();
 
                 LoadDanhSach();
                 LoadNhaCungCap();
+
                 KhoaControls(true);
                 BatTatNut(true, true, true, false, false);
 
-                // Load ảnh vào DataGridView
-                LoadAnhVaoGrid();
+                // Load ảnh SAU KHI form đã hiển thị hoàn toàn
+                this.Shown += (s, ev) => LoadAnhVaoGrid();
             }
             catch (Exception ex)
             {
@@ -71,17 +82,13 @@ namespace GiaoDienDangNhap
                 dt = new DataTable();
                 adapter.Fill(dt);
 
-                datagriw_sanphamphukien.DataSource = dt;
+                // Xóa cột Image cũ nếu có (để tránh duplicate)
+                if (datagriw_sanphamphukien.Columns.Contains("HinhAnh_Image"))
+                {
+                    datagriw_sanphamphukien.Columns.Remove("HinhAnh_Image");
+                }
 
-                // Kiểm tra có dữ liệu không
-                if (dt.Rows.Count == 0)
-                {
-                    MessageBox.Show("Chưa có dữ liệu sản phẩm trong database!", "Thông báo");
-                }
-                else
-                {
-                   // MessageBox.Show("Đã load " + dt.Rows.Count + " sản phẩm", "Thông báo");
-                }
+                datagriw_sanphamphukien.DataSource = dt;
 
                 // Ẩn cột HinhAnh gốc (chứa tên file text)
                 if (datagriw_sanphamphukien.Columns.Contains("HinhAnh"))
@@ -91,17 +98,14 @@ namespace GiaoDienDangNhap
                 if (datagriw_sanphamphukien.Columns["MaNCC"] != null)
                     datagriw_sanphamphukien.Columns["MaNCC"].Visible = false;
 
-                // Kiểm tra và tạo cột Image nếu chưa có
-                if (!datagriw_sanphamphukien.Columns.Contains("HinhAnh_Image"))
-                {
-                    DataGridViewImageColumn imgCol = new DataGridViewImageColumn();
-                    imgCol.Name = "HinhAnh_Image";
-                    imgCol.HeaderText = "Hình Ảnh";
-                    imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
-                    imgCol.Width = 120;
-                    imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    datagriw_sanphamphukien.Columns.Insert(0, imgCol); // Thêm vào cột đầu tiên
-                }
+                // Tạo cột Image MỚI
+                DataGridViewImageColumn imgCol = new DataGridViewImageColumn();
+                imgCol.Name = "HinhAnh_Image";
+                imgCol.HeaderText = "Hình Ảnh";
+                imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
+                imgCol.Width = 120;
+                imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                datagriw_sanphamphukien.Columns.Insert(0, imgCol);
 
                 // Đặt tên hiển thị
                 datagriw_sanphamphukien.Columns["MaSP"].HeaderText = "Mã SP";
@@ -125,105 +129,66 @@ namespace GiaoDienDangNhap
         }
 
         // ===== LOAD HÌNH ẢNH VÀO DATAGRIDVIEW =====
-        private void datagriw_sanphamphukien_SelectionChanged(object sender, EventArgs e)
-        {
-            if (datagriw_sanphamphukien.SelectedRows.Count > 0)
-            {
-                DataGridViewRow row = datagriw_sanphamphukien.SelectedRows[0];
-
-                textBox1.Text = row.Cells["MaSP"].Value?.ToString();
-                textBox3.Text = row.Cells["TenSP"].Value?.ToString();
-                if (row.Cells["MaNCC"] != null && row.Cells["MaNCC"].Value != null)
-                {
-                    cb_nhacc.SelectedValue = row.Cells["MaNCC"].Value;
-                }
-                else
-                {
-                    cb_nhacc.SelectedIndex = -1; // hoặc giữ nguyên trạng thái cũ
-                }
-                textBox5.Text = row.Cells["GiaBan"].Value?.ToString();
-                textBox4.Text = row.Cells["SoLuong"].Value?.ToString();
-                txt_MoTaSanPham.Text = row.Cells["MoTa"].Value?.ToString();
-
-                // Hiển thị ảnh
-                var hinhAnhValue = row.Cells["HinhAnh"].Value;
-                if (hinhAnhValue != null && !string.IsNullOrWhiteSpace(hinhAnhValue.ToString()))
-                {
-                    string file = hinhAnhValue.ToString().Trim();
-                    string projectPath = Application.StartupPath;
-                    string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-                    string fullPath = solutionPath + "\\Images\\SanPhamPhuKien\\" + file;
-
-                    if (File.Exists(fullPath))
-                    {
-                        if (pictureBox1.Image != null)
-                        {
-                            var oldImage = pictureBox1.Image;
-                            pictureBox1.Image = null;
-                            oldImage.Dispose();
-                        }
-
-                        pictureBox1.Image = Image.FromFile(fullPath);
-                        imagePath = file;
-                    }
-                    else
-                    {
-                        pictureBox1.Image = null;
-                        imagePath = "";
-                    }
-                }
-                else
-                {
-                    pictureBox1.Image = null;
-                    imagePath = "";
-                }
-            }
-        }
-
         private void LoadAnhVaoGrid()
         {
-            string projectPath = Application.StartupPath;
-            string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-            string folder = solutionPath + "\\Images\\SanPhamPhuKien\\";
-
-            if (!Directory.Exists(folder))
+            try
             {
-                Directory.CreateDirectory(folder);
-                return;
-            }
+                // Tìm đường dẫn đúng
+                string projectPath = Application.StartupPath;
+                string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
 
-            foreach (DataGridViewRow row in datagriw_sanphamphukien.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                try
+                // Thử cả 2 tên thư mục
+                string folder = solutionPath + "\\Images\\SanPhamPhuKien\\";
+                if (!Directory.Exists(folder))
                 {
-                    var val = row.Cells["HinhAnh"].Value;
-                    if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
-                    {
-                        row.Cells["HinhAnh_Image"].Value = null;
-                        continue;
-                    }
+                    folder = solutionPath + "\\Images\\SanPhamPhukien\\";
+                }
 
-                    string file = val.ToString().Trim();
-                    string fullPath = folder + file;
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                    return;
+                }
 
-                    if (File.Exists(fullPath))
+                foreach (DataGridViewRow row in datagriw_sanphamphukien.Rows)
+                {
+                    if (row.IsNewRow) continue;
+
+                    try
                     {
-                        using (var img = Image.FromFile(fullPath))
+                        var val = row.Cells["HinhAnh"].Value;
+                        if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
                         {
-                            row.Cells["HinhAnh_Image"].Value = new Bitmap(img);
+                            row.Cells["HinhAnh_Image"].Value = null;
+                            continue;
+                        }
+
+                        string file = val.ToString().Trim();
+                        string fullPath = folder + file;
+
+                        if (File.Exists(fullPath))
+                        {
+                            using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                            {
+                                Image img = Image.FromStream(stream);
+                                row.Cells["HinhAnh_Image"].Value = new Bitmap(img);
+                                img.Dispose();
+                            }
+                        }
+                        else
+                        {
+                            row.Cells["HinhAnh_Image"].Value = null;
                         }
                     }
-                    else
+                    catch
                     {
                         row.Cells["HinhAnh_Image"].Value = null;
                     }
                 }
-                catch
-                {
-                    row.Cells["HinhAnh_Image"].Value = null;
-                }
+            }
+            catch
+            {
+                // Không hiển thị lỗi để tránh gián đoạn
             }
         }
 
@@ -247,54 +212,130 @@ namespace GiaoDienDangNhap
             }
         }
 
-        // ===== CLICK VÀO DÒNG TRONG DATAGRIDVIEW =====
-        private void datagriw_sanphamphukien_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        // ===== SELECTION CHANGED - HIỂN THỊ THÔNG TIN =====
+        private void datagriw_sanphamphukien_SelectionChanged(object sender, EventArgs e)
         {
-            if (e.RowIndex >= 0)
+            if (datagriw_sanphamphukien.SelectedRows.Count > 0)
             {
-                DataGridViewRow row = datagriw_sanphamphukien.Rows[e.RowIndex];
-
-                textBox1.Text = row.Cells["MaSP"].Value.ToString(); // Mã SP
-                textBox3.Text = row.Cells["TenSP"].Value.ToString(); // Tên SP
-                cb_nhacc.SelectedValue = row.Cells["MaNCC"].Value; // Nhà cung cấp
-                textBox5.Text = row.Cells["GiaBan"].Value.ToString(); // Giá bán
-                textBox4.Text = row.Cells["SoLuong"].Value.ToString(); // Số lượng
-                txt_MoTaSanPham.Text = row.Cells["MoTa"].Value.ToString(); // Mô tả
-
-                // Hiển thị hình ảnh
-                var hinhAnhValue = row.Cells["HinhAnh"].Value;
-                if (hinhAnhValue != null && !string.IsNullOrWhiteSpace(hinhAnhValue.ToString()))
+                try
                 {
-                    string file = hinhAnhValue.ToString().Trim();
-                    string projectPath = Application.StartupPath;
-                    string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-                    string fullPath = solutionPath + "\\Images\\SanPhamPhuKien\\" + file;
+                    DataGridViewRow row = datagriw_sanphamphukien.SelectedRows[0];
 
-                    if (File.Exists(fullPath))
+                    // Hiển thị thông tin lên các textbox - XỬ LÝ NULL/EMPTY
+                    textBox1.Text = row.Cells["MaSP"].Value?.ToString() ?? "";
+                    textBox3.Text = row.Cells["TenSP"].Value?.ToString() ?? "";
+
+                    // Xử lý giá bán - chỉ hiển thị số, không có format
+                    var giaBanValue = row.Cells["GiaBan"].Value;
+                    if (giaBanValue != null && giaBanValue != DBNull.Value)
                     {
-                        // Giải phóng ảnh cũ trước
-                        if (pictureBox1.Image != null)
+                        try
                         {
-                            var oldImage = pictureBox1.Image;
-                            pictureBox1.Image = null;
-                            oldImage.Dispose();
+                            decimal giaBan = Convert.ToDecimal(giaBanValue);
+                            textBox5.Text = giaBan.ToString("0"); // Hiển thị số thuần không có dấu phẩy
+                        }
+                        catch
+                        {
+                            textBox5.Text = "";
+                        }
+                    }
+                    else
+                    {
+                        textBox5.Text = "";
+                    }
+
+                    // Xử lý số lượng
+                    var soLuongValue = row.Cells["SoLuong"].Value;
+                    if (soLuongValue != null && soLuongValue != DBNull.Value)
+                    {
+                        try
+                        {
+                            int soLuong = Convert.ToInt32(soLuongValue);
+                            textBox4.Text = soLuong.ToString();
+                        }
+                        catch
+                        {
+                            textBox4.Text = "";
+                        }
+                    }
+                    else
+                    {
+                        textBox4.Text = "";
+                    }
+
+                    txt_MoTaSanPham.Text = row.Cells["MoTa"].Value?.ToString() ?? "";
+
+                    // Set nhà cung cấp
+                    if (row.Cells["MaNCC"] != null && row.Cells["MaNCC"].Value != null)
+                    {
+                        cb_nhacc.SelectedValue = row.Cells["MaNCC"].Value;
+                    }
+                    else
+                    {
+                        if (cb_nhacc.Items.Count > 0)
+                            cb_nhacc.SelectedIndex = 0;
+                    }
+
+                    // Hiển thị ảnh
+                    var hinhAnhValue = row.Cells["HinhAnh"].Value;
+                    if (hinhAnhValue != null && !string.IsNullOrWhiteSpace(hinhAnhValue.ToString()))
+                    {
+                        string file = hinhAnhValue.ToString().Trim();
+                        string projectPath = Application.StartupPath;
+                        string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
+
+                        // Thử cả 2 tên thư mục
+                        string fullPath = solutionPath + "\\Images\\SanPhamPhuKien\\" + file;
+                        if (!File.Exists(fullPath))
+                        {
+                            fullPath = solutionPath + "\\Images\\SanPhamPhukien\\" + file;
                         }
 
-                        pictureBox1.Image = Image.FromFile(fullPath);
-                        imagePath = file;
+                        if (File.Exists(fullPath))
+                        {
+                            // Giải phóng ảnh cũ
+                            if (pictureBox1.Image != null)
+                            {
+                                var oldImage = pictureBox1.Image;
+                                pictureBox1.Image = null;
+                                oldImage.Dispose();
+                            }
+
+                            // Load ảnh mới
+                            using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                            {
+                                pictureBox1.Image = Image.FromStream(stream);
+                            }
+                            imagePath = file;
+                        }
+                        else
+                        {
+                            pictureBox1.Image = null;
+                            imagePath = "";
+                        }
                     }
                     else
                     {
                         pictureBox1.Image = null;
                         imagePath = "";
                     }
+
+                    // Enable các nút Sửa và Xóa
+                    tool_sua.Enabled = true;
+                    tool_xoa.Enabled = true;
                 }
-                else
+                catch (Exception ex)
                 {
-                    pictureBox1.Image = null;
-                    imagePath = "";
+                    MessageBox.Show("Lỗi hiển thị thông tin: " + ex.Message + "\n\nStack: " + ex.StackTrace, "Lỗi");
                 }
             }
+        }
+
+        // ===== CLICK VÀO DÒNG TRONG DATAGRIDVIEW =====
+        private void datagriw_sanphamphukien_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Event này không cần xử lý gì vì SelectionChanged đã xử lý rồi
+            // Để trống
         }
 
         // ===== NÚT THÊM =====
@@ -444,13 +485,11 @@ namespace GiaoDienDangNhap
                 string sql = "";
                 if (isAddNew)
                 {
-                    // Thêm mới
                     sql = @"INSERT INTO SanPhamPhuKien (MaSP, TenSP, MaNCC, GiaBan, SoLuong, MoTa, HinhAnh)
                            VALUES (@MaSP, @TenSP, @MaNCC, @GiaBan, @SoLuong, @MoTa, @HinhAnh)";
                 }
                 else
                 {
-                    // Cập nhật
                     sql = @"UPDATE SanPhamPhuKien 
                            SET TenSP = @TenSP, MaNCC = @MaNCC, GiaBan = @GiaBan, 
                                SoLuong = @SoLuong, MoTa = @MoTa, HinhAnh = @HinhAnh
@@ -511,7 +550,6 @@ namespace GiaoDienDangNhap
             {
                 try
                 {
-                    // Tạo thư mục nếu chưa có
                     string projectPath = Application.StartupPath;
                     string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
                     string folder = solutionPath + "\\Images\\SanPhamPhuKien\\";
@@ -519,11 +557,9 @@ namespace GiaoDienDangNhap
                     if (!Directory.Exists(folder))
                         Directory.CreateDirectory(folder);
 
-                    // Copy file vào thư mục dự án
                     string fileName = Path.GetFileName(openFile.FileName);
                     string destPath = folder + fileName;
 
-                    // Giải phóng ảnh cũ nếu có
                     if (pictureBox1.Image != null)
                     {
                         var oldImage = pictureBox1.Image;
@@ -531,13 +567,13 @@ namespace GiaoDienDangNhap
                         oldImage.Dispose();
                     }
 
-                    // Copy file
                     File.Copy(openFile.FileName, destPath, true);
 
-                    // Hiển thị ảnh
-                    pictureBox1.Image = Image.FromFile(destPath);
+                    using (var stream = new FileStream(destPath, FileMode.Open, FileAccess.Read))
+                    {
+                        pictureBox1.Image = Image.FromStream(stream);
+                    }
 
-                    // Lưu tên file (không lưu full path)
                     imagePath = fileName;
 
                     MessageBox.Show("Đã thêm ảnh thành công!", "Thông báo");
@@ -637,49 +673,22 @@ namespace GiaoDienDangNhap
             tool_huy.Enabled = huy;
         }
 
-        // ===== CÁC EVENT TEXTCHANGED (Để trống hoặc thêm validation) =====
-        private void txt_timkiem_TextChanged(object sender, EventArgs e)
-        {
-            // Có thể thêm tìm kiếm tự động khi gõ
-        }
+        // ===== CÁC EVENT - XÓA METHOD TRÙNG LẶP =====
+        private void txt_timkiem_TextChanged(object sender, EventArgs e) { }
+        private void textBox1_TextChanged(object sender, EventArgs e) { }
+        private void textBox3_TextChanged(object sender, EventArgs e) { }
+        private void textBox5_TextChanged(object sender, EventArgs e) { }
+        private void textBox4_TextChanged(object sender, EventArgs e) { }
+        private void txt_MoTaSanPham_TextChanged(object sender, EventArgs e) { }
+        private void cb_nhacc_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void pictureBox1_Click(object sender, EventArgs e) { }
+        private void label6_Click(object sender, EventArgs e) { }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void textBox3_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void textBox5_TextChanged(object sender, EventArgs e)
-        {
-            // Có thể thêm validation chỉ cho phép nhập số
-        }
-
-        private void textBox4_TextChanged(object sender, EventArgs e)
-        {
-            // Có thể thêm validation chỉ cho phép nhập số
-        }
-
-        private void txt_MoTaSanPham_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void cb_nhacc_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void label6_Click(object sender, EventArgs e)
-        {
-        }
-
+        // ===== METHOD NÀY CHỈ ĐỂ TRÁNH LỖI DESIGNER =====
+        // Bạn có thể xóa sau khi sửa Designer
         private void SanPham_Load_1(object sender, EventArgs e)
         {
-
+            // Không cần làm gì, SanPham_Load đã xử lý
         }
     }
 }

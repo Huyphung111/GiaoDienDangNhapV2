@@ -22,20 +22,38 @@ namespace GiaoDienDangNhap
         // ====================================================
         private void ThuCung_Load(object sender, EventArgs e)
         {
-            picAnh.SizeMode = PictureBoxSizeMode.Zoom;
+            try
+            {
+                // Cấu hình PictureBox
+                if (picAnh != null)
+                    picAnh.SizeMode = PictureBoxSizeMode.Zoom;
 
-            // Tăng chiều cao của dòng trong DataGridView
-            dataGridView1.RowTemplate.Height = 80;
+                // Tăng chiều cao của dòng trong DataGridView
+                if (dataGridView1 != null)
+                {
+                    dataGridView1.RowTemplate.Height = 80;
 
-            // Cấu hình DataGridView để fill đầy
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                    // Cấu hình DataGridView để fill đầy
+                    dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            // Đặt tất cả control thành ReadOnly ban đầu
-            SetReadOnlyMode(true);
+                    // Set chế độ chọn cả dòng
+                    dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                    dataGridView1.MultiSelect = false;
+                }
 
-            LoadLoai();
-            LoadThuCung();
-            LoadAnhVaoGrid();
+                // Đặt tất cả control thành ReadOnly ban đầu
+                SetReadOnlyMode(true);
+
+                LoadLoai();
+                LoadThuCung();
+
+                // Load ảnh SAU KHI form đã hiển thị hoàn toàn
+                this.Shown += (s, ev) => LoadAnhVaoGrid();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khởi tạo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         // Hàm bật/tắt chế độ ReadOnly
@@ -124,23 +142,51 @@ namespace GiaoDienDangNhap
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
+                // Xóa cột Image cũ nếu có
+                if (dataGridView1.Columns.Contains("HinhAnh_Image"))
+                {
+                    dataGridView1.Columns.Remove("HinhAnh_Image");
+                }
+
                 dataGridView1.DataSource = dt;
 
                 // Ẩn cột HinhAnh gốc (chứa tên file text)
                 if (dataGridView1.Columns.Contains("HinhAnh"))
                     dataGridView1.Columns["HinhAnh"].Visible = false;
 
-                // Kiểm tra và tạo cột Image nếu chưa có
-                if (!dataGridView1.Columns.Contains("HinhAnh_Image"))
+                // Ẩn cột MaLoai
+                if (dataGridView1.Columns.Contains("MaLoai"))
+                    dataGridView1.Columns["MaLoai"].Visible = false;
+
+                // Tạo cột Image mới
+                DataGridViewImageColumn imgCol = new DataGridViewImageColumn();
+                imgCol.Name = "HinhAnh_Image";
+                imgCol.HeaderText = "Hình Ảnh";
+                imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
+                imgCol.Width = 120;
+                imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                dataGridView1.Columns.Insert(0, imgCol);
+
+                // Đặt tên cột
+                if (dataGridView1.Columns.Contains("MaThuCung"))
+                    dataGridView1.Columns["MaThuCung"].HeaderText = "Mã TC";
+                if (dataGridView1.Columns.Contains("TenThuCung"))
+                    dataGridView1.Columns["TenThuCung"].HeaderText = "Tên thú cưng";
+                if (dataGridView1.Columns.Contains("TenLoai"))
+                    dataGridView1.Columns["TenLoai"].HeaderText = "Loại";
+                if (dataGridView1.Columns.Contains("Tuoi"))
+                    dataGridView1.Columns["Tuoi"].HeaderText = "Tuổi";
+                if (dataGridView1.Columns.Contains("GioiTinh"))
+                    dataGridView1.Columns["GioiTinh"].HeaderText = "Giới tính";
+                if (dataGridView1.Columns.Contains("GiaBan"))
                 {
-                    DataGridViewImageColumn imgCol = new DataGridViewImageColumn();
-                    imgCol.Name = "HinhAnh_Image";
-                    imgCol.HeaderText = "Hình Ảnh";
-                    imgCol.ImageLayout = DataGridViewImageCellLayout.Zoom;
-                    imgCol.Width = 120;
-                    imgCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dataGridView1.Columns.Insert(0, imgCol);
+                    dataGridView1.Columns["GiaBan"].HeaderText = "Giá bán";
+                    dataGridView1.Columns["GiaBan"].DefaultCellStyle.Format = "N0";
                 }
+                if (dataGridView1.Columns.Contains("SoLuong"))
+                    dataGridView1.Columns["SoLuong"].HeaderText = "Số lượng";
+                if (dataGridView1.Columns.Contains("MoTa"))
+                    dataGridView1.Columns["MoTa"].HeaderText = "Mô tả";
             }
         }
 
@@ -149,48 +195,63 @@ namespace GiaoDienDangNhap
         // ====================================================
         void LoadAnhVaoGrid()
         {
-            string projectPath = Application.StartupPath;
-            string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-            string folder = solutionPath + "\\Images\\ThuCung\\";
-
-            if (!Directory.Exists(folder))
+            try
             {
-                Directory.CreateDirectory(folder);
-                return;
-            }
+                string projectPath = Application.StartupPath;
+                string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
 
-            foreach (DataGridViewRow row in dataGridView1.Rows)
-            {
-                if (row.IsNewRow) continue;
-
-                try
+                // Thử cả 2 tên thư mục
+                string folder = solutionPath + "\\Images\\ThuCung\\";
+                if (!Directory.Exists(folder))
                 {
-                    var val = row.Cells["HinhAnh"].Value;
-                    if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
-                    {
-                        row.Cells["HinhAnh_Image"].Value = null;
-                        continue;
-                    }
+                    folder = solutionPath + "\\Images\\Thucung\\";
+                }
 
-                    string file = val.ToString().Trim();
-                    string fullPath = folder + file;
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                    return;
+                }
 
-                    if (File.Exists(fullPath))
+                foreach (DataGridViewRow row in dataGridView1.Rows)
+                {
+                    if (row.IsNewRow) continue;
+
+                    try
                     {
-                        using (var img = Image.FromFile(fullPath))
+                        var val = row.Cells["HinhAnh"].Value;
+                        if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
                         {
-                            row.Cells["HinhAnh_Image"].Value = new Bitmap(img);
+                            row.Cells["HinhAnh_Image"].Value = null;
+                            continue;
+                        }
+
+                        string file = val.ToString().Trim();
+                        string fullPath = folder + file;
+
+                        if (File.Exists(fullPath))
+                        {
+                            using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                            {
+                                Image img = Image.FromStream(stream);
+                                row.Cells["HinhAnh_Image"].Value = new Bitmap(img);
+                                img.Dispose();
+                            }
+                        }
+                        else
+                        {
+                            row.Cells["HinhAnh_Image"].Value = null;
                         }
                     }
-                    else
+                    catch
                     {
                         row.Cells["HinhAnh_Image"].Value = null;
                     }
                 }
-                catch
-                {
-                    row.Cells["HinhAnh_Image"].Value = null;
-                }
+            }
+            catch
+            {
+                // Không hiển thị lỗi
             }
         }
 
@@ -204,51 +265,34 @@ namespace GiaoDienDangNhap
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                picAnh.Image = Image.FromFile(dlg.FileName);
-                fileAnh = Path.GetFileName(dlg.FileName);
-
                 string projectPath = Application.StartupPath;
                 string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
-                string dest = solutionPath + "\\Images\\ThuCung\\" + fileAnh;
+                string folder = solutionPath + "\\Images\\ThuCung\\";
 
-                string folder = Path.GetDirectoryName(dest);
                 if (!Directory.Exists(folder))
                     Directory.CreateDirectory(folder);
 
+                fileAnh = Path.GetFileName(dlg.FileName);
+                string dest = folder + fileAnh;
+
+                // Giải phóng ảnh cũ
+                if (picAnh.Image != null)
+                {
+                    var oldImage = picAnh.Image;
+                    picAnh.Image = null;
+                    oldImage.Dispose();
+                }
+
+                // Copy file
                 File.Copy(dlg.FileName, dest, true);
-            }
-        }
 
-        // ====================================================
-        // 5. Thêm
-        // ====================================================
-        private void btnThem_Click(object sender, EventArgs e)
-        {
-            using (SqlConnection cn = new SqlConnection(cnnStr))
-            {
-                cn.Open();
+                // Load ảnh mới
+                using (var stream = new FileStream(dest, FileMode.Open, FileAccess.Read))
+                {
+                    picAnh.Image = Image.FromStream(stream);
+                }
 
-                string sql = @"INSERT INTO ThuCung
-                               (MaThuCung, TenThuCung, MaLoai, Tuoi, GioiTinh, GiaBan, SoLuong, MoTa, HinhAnh)
-                               VALUES (@ma, @ten, @loai, @tuoi, @gt, @gia, @sl, @mota, @anh)";
-
-                SqlCommand cmd = new SqlCommand(sql, cn);
-
-                cmd.Parameters.AddWithValue("@ma", txtMa.Text);
-                cmd.Parameters.AddWithValue("@ten", txtTen.Text);
-                cmd.Parameters.AddWithValue("@loai", cbMaloai.SelectedValue);
-                cmd.Parameters.AddWithValue("@tuoi", txtTuoi.Text);
-                cmd.Parameters.AddWithValue("@gt", cboGioiTinh.Text);
-                cmd.Parameters.AddWithValue("@gia", txtGiaBan.Text);
-                cmd.Parameters.AddWithValue("@sl", txtSoLuong.Text);
-                cmd.Parameters.AddWithValue("@mota", txtMota.Text);
-                cmd.Parameters.AddWithValue("@anh", fileAnh);
-
-                cmd.ExecuteNonQuery();
-
-                MessageBox.Show("Thêm thành công!");
-                LoadThuCung();
-                LoadAnhVaoGrid();
+                MessageBox.Show("Đã thêm ảnh thành công!", "Thông báo");
             }
         }
 
@@ -296,7 +340,12 @@ namespace GiaoDienDangNhap
                     string file = hinhAnhValue.ToString().Trim();
                     string projectPath = Application.StartupPath;
                     string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
+
                     string fullPath = solutionPath + "\\Images\\ThuCung\\" + file;
+                    if (!File.Exists(fullPath))
+                    {
+                        fullPath = solutionPath + "\\Images\\Thucung\\" + file;
+                    }
 
                     if (File.Exists(fullPath))
                     {
@@ -307,7 +356,10 @@ namespace GiaoDienDangNhap
                             oldImage.Dispose();
                         }
 
-                        picAnh.Image = Image.FromFile(fullPath);
+                        using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                        {
+                            picAnh.Image = Image.FromStream(stream);
+                        }
                         fileAnh = file;
                     }
                     else
@@ -331,80 +383,22 @@ namespace GiaoDienDangNhap
         }
 
         // ====================================================
-        // 7. Sửa
-        // ====================================================
-        private void btnSua_Click(object sender, EventArgs e)
-        {
-            using (SqlConnection cn = new SqlConnection(cnnStr))
-            {
-                cn.Open();
-
-                string sql = @"UPDATE ThuCung SET 
-                               TenThuCung=@ten, MaLoai=@loai, Tuoi=@tuoi, GioiTinh=@gt,
-                               GiaBan=@gia, SoLuong=@sl, MoTa=@mota, HinhAnh=@anh
-                               WHERE MaThuCung=@ma";
-
-                SqlCommand cmd = new SqlCommand(sql, cn);
-
-                cmd.Parameters.AddWithValue("@ma", txtMa.Text);
-                cmd.Parameters.AddWithValue("@ten", txtTen.Text);
-                cmd.Parameters.AddWithValue("@loai", cbMaloai.SelectedValue);
-                cmd.Parameters.AddWithValue("@tuoi", txtTuoi.Text);
-                cmd.Parameters.AddWithValue("@gt", cboGioiTinh.Text);
-                cmd.Parameters.AddWithValue("@gia", txtGiaBan.Text);
-                cmd.Parameters.AddWithValue("@sl", txtSoLuong.Text);
-                cmd.Parameters.AddWithValue("@mota", txtMota.Text);
-                cmd.Parameters.AddWithValue("@anh", fileAnh);
-
-                cmd.ExecuteNonQuery();
-
-                MessageBox.Show("Sửa thành công!");
-                LoadThuCung();
-                LoadAnhVaoGrid();
-            }
-        }
-
-        // ====================================================
-        // 8. Xóa
-        // ====================================================
-        private void btnXoa_Click(object sender, EventArgs e)
-        {
-            using (SqlConnection cn = new SqlConnection(cnnStr))
-            {
-                cn.Open();
-
-                SqlCommand cmd = new SqlCommand("DELETE FROM ThuCung WHERE MaThuCung=@ma", cn);
-                cmd.Parameters.AddWithValue("@ma", txtMa.Text);
-                cmd.ExecuteNonQuery();
-
-                MessageBox.Show("Xóa thành công!");
-                LoadThuCung();
-                LoadAnhVaoGrid();
-            }
-        }
-
-        // ====================================================
         // 9. NÚT TÌM - TÌM THEO TÊN VÀ LOẠI
         // ====================================================
         private void btnTim_Click(object sender, EventArgs e)
         {
             try
             {
-                // Lấy từ khóa tìm kiếm
                 string keyword = txtTim.Text.Trim();
-
-                // Lấy mã loại từ ComboBox
                 int maLoai = 0;
                 if (cboLoai.SelectedValue != null)
                 {
                     maLoai = Convert.ToInt32(cboLoai.SelectedValue);
                 }
 
-                // Load dữ liệu với điều kiện lọc
                 LoadThuCung(keyword, maLoai);
                 LoadAnhVaoGrid();
 
-                // Thông báo kết quả
                 int soKetQua = dataGridView1.Rows.Count;
                 string thongBao = $"Tìm thấy {soKetQua} kết quả";
 
@@ -440,7 +434,13 @@ namespace GiaoDienDangNhap
             txtGiaBan.Clear();
             txtSoLuong.Clear();
             txtMota.Clear();
-            picAnh.Image = null;
+
+            if (picAnh.Image != null)
+            {
+                var oldImage = picAnh.Image;
+                picAnh.Image = null;
+                oldImage.Dispose();
+            }
             fileAnh = "";
 
             if (cbMaloai.Items.Count > 0)
@@ -596,6 +596,9 @@ namespace GiaoDienDangNhap
         // ====================================================
         // GIỮ LẠI TẤT CẢ EVENT RỖNG
         // ====================================================
+        private void btnThem_Click(object sender, EventArgs e) { }
+        private void btnSua_Click(object sender, EventArgs e) { }
+        private void btnXoa_Click(object sender, EventArgs e) { }
         private void txtTen_TextChanged(object sender, EventArgs e) { }
         private void txtTuoi_TextChanged(object sender, EventArgs e) { }
         private void txtGiaBan_TextChanged(object sender, EventArgs e) { }
