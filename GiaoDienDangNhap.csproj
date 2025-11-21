@@ -100,6 +100,12 @@
     <Compile Include="Form2.Designer.cs">
       <DependentUpon>Form2.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmDichVu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDichVu.Designer.cs">
+      <DependentUpon>frmDichVu.cs</DependentUpon>
+    </Compile>
     <Compile Include="GiaoDien.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -146,6 +152,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form2.resx">
       <DependentUpon>Form2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDichVu.resx">
+      <DependentUpon>frmDichVu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GiaoDien.resx">
       <DependentUpon>GiaoDien.cs</DependentUpon>
@@ -444,6 +453,8 @@
   <ItemGroup>
     <Content Include="Images\SanPhamPhuKien\chuong.jpg" />
     <Content Include="Images\ThuCung\poodle.jpg" />
+    <None Include="Resources\Ảnh chụp màn hình 2025-11-21 141324.png" />
+    <None Include="Resources\pngtree-illustration-of-a-cartoon-dog-and-cat-taking-a-shower-in-a-bathtub-at-a-pet-salon-drawn-in-a-doodle-style-vector-picture-image_10411305.png" />
     <Content Include="SQLThuCung.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

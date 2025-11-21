@@ -141,7 +141,32 @@ namespace GiaoDienDangNhap
 
         private void button2_Click_1(object sender, EventArgs e)
         {
+            try
+            {
+                // Xóa các control cũ trong panel (nếu có)
+                panel_NoiDung.Controls.Clear();
+
+                // Tạo instance của form DichVu
+                frmDichVu formDichVu = new frmDichVu();
+
+                // Set các thuộc tính để form hiển thị như một control
+                formDichVu.TopLevel = false;
+                formDichVu.FormBorderStyle = FormBorderStyle.None;
+                formDichVu.Dock = DockStyle.Fill;
+
+                // Thêm form vào panel
+                panel_NoiDung.Controls.Add(formDichVu);
+
+                // Hiển thị form
+                formDichVu.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi mở form Dịch Vụ: " + ex.Message,
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         // ═══════════════════════════════════════════════════════════
         // NÚT PHỤ KIỆN - METHOD ĐÚNG
@@ -172,6 +197,11 @@ namespace GiaoDienDangNhap
                 MessageBox.Show("Lỗi khi mở form Sản Phẩm: " + ex.Message + "\n\nStack Trace: " + ex.StackTrace,
                     "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -265,6 +265,9 @@
   <data name="Ảnh chụp màn hình 2025-11-13 1008279" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Ảnh chụp màn hình 2025-11-13 1008279.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Ảnh chụp màn hình 2025-11-21 141324" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Ảnh chụp màn hình 2025-11-21 141324.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="icon-login-password-user-lock-and-key-share-icon-security-blue-padlock-png-clipart" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icon-login-password-user-lock-and-key-share-icon-security-blue-padlock-png-clipart.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -301,6 +304,9 @@
   <data name="Ảnh chụp màn hình 2025-11-11 123302" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Ảnh chụp màn hình 2025-11-11 123302.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="pet-shop" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\pet-shop.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="pawprint" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\pawprint.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -334,7 +340,7 @@
   <data name="unnamed (3)2" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\unnamed (3)2.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="pet-shop" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\pet-shop.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="pngtree-illustration-of-a-cartoon-dog-and-cat-taking-a-shower-in-a-bathtub-at-a-pet-salon-drawn-in-a-doodle-style-vector-picture-image_10411305" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\pngtree-illustration-of-a-cartoon-dog-and-cat-taking-a-shower-in-a-bathtub-at-a-pet-salon-drawn-in-a-doodle-style-vector-picture-image_10411305.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

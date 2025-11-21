@@ -463,6 +463,16 @@ namespace GiaoDienDangNhap.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Ảnh_chụp_màn_hình_2025_11_21_141324 {
+            get {
+                object obj = ResourceManager.GetObject("Ảnh chụp màn hình 2025-11-21 141324", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap bill {
             get {
                 object obj = ResourceManager.GetObject("bill", resourceCulture);
@@ -637,6 +647,17 @@ namespace GiaoDienDangNhap.Properties {
         internal static System.Drawing.Bitmap pets {
             get {
                 object obj = ResourceManager.GetObject("pets", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap pngtree_illustration_of_a_cartoon_dog_and_cat_taking_a_shower_in_a_bathtub_at_a_pet_salon_drawn_in_a_doodle_style_vector_picture_image_10411305 {
+            get {
+                object obj = ResourceManager.GetObject("pngtree-illustration-of-a-cartoon-dog-and-cat-taking-a-shower-in-a-bathtub-at-a-p" +
+                        "et-salon-drawn-in-a-doodle-style-vector-picture-image_10411305", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
