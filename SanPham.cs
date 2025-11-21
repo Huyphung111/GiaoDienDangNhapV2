@@ -676,5 +676,10 @@ namespace GiaoDienDangNhap
         private void label6_Click(object sender, EventArgs e)
         {
         }
+
+        private void SanPham_Load_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }
