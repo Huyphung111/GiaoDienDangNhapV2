@@ -61,6 +61,8 @@
             this.btn_timkiem = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.btn_muasanpham = new System.Windows.Forms.Button();
+            this.btn_xemdonhang = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -70,6 +72,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.btn_xemdonhang);
+            this.groupBox1.Controls.Add(this.btn_muasanpham);
             this.groupBox1.Controls.Add(this.txt_MoTaSanPham);
             this.groupBox1.Controls.Add(this.cb_nhacc);
             this.groupBox1.Controls.Add(this.textBox5);
@@ -87,7 +91,7 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(296, 426);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(978, 304);
+            this.groupBox1.Size = new System.Drawing.Size(1235, 304);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "groupBox1";
@@ -158,7 +162,7 @@
             this.toolStripLabel5});
             this.toolStrip1.Location = new System.Drawing.Point(3, 22);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(972, 33);
+            this.toolStrip1.Size = new System.Drawing.Size(1229, 33);
             this.toolStrip1.TabIndex = 8;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -244,7 +248,7 @@
             // 
             // Btn_ThemAnh
             // 
-            this.Btn_ThemAnh.Location = new System.Drawing.Point(798, 242);
+            this.Btn_ThemAnh.Location = new System.Drawing.Point(1070, 239);
             this.Btn_ThemAnh.Name = "Btn_ThemAnh";
             this.Btn_ThemAnh.Size = new System.Drawing.Size(106, 32);
             this.Btn_ThemAnh.TabIndex = 7;
@@ -254,7 +258,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(758, 79);
+            this.pictureBox1.Location = new System.Drawing.Point(1027, 65);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(170, 145);
             this.pictureBox1.TabIndex = 6;
@@ -323,7 +327,7 @@
             this.datagriw_sanphamphukien.Name = "datagriw_sanphamphukien";
             this.datagriw_sanphamphukien.RowHeadersWidth = 62;
             this.datagriw_sanphamphukien.RowTemplate.Height = 28;
-            this.datagriw_sanphamphukien.Size = new System.Drawing.Size(990, 200);
+            this.datagriw_sanphamphukien.Size = new System.Drawing.Size(1244, 200);
             this.datagriw_sanphamphukien.TabIndex = 1;
             this.datagriw_sanphamphukien.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.datagriw_sanphamphukien_CellContentClick);
             // 
@@ -351,7 +355,7 @@
             this.panel1.Controls.Add(this.btn_timkiem);
             this.panel1.Location = new System.Drawing.Point(284, 100);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(990, 100);
+            this.panel1.Size = new System.Drawing.Size(1244, 100);
             this.panel1.TabIndex = 4;
             // 
             // toolStrip2
@@ -362,6 +366,26 @@
             this.toolStrip2.Size = new System.Drawing.Size(1631, 25);
             this.toolStrip2.TabIndex = 5;
             this.toolStrip2.Text = "toolStrip2";
+            // 
+            // btn_muasanpham
+            // 
+            this.btn_muasanpham.Location = new System.Drawing.Point(738, 181);
+            this.btn_muasanpham.Name = "btn_muasanpham";
+            this.btn_muasanpham.Size = new System.Drawing.Size(127, 81);
+            this.btn_muasanpham.TabIndex = 24;
+            this.btn_muasanpham.Text = "Mua";
+            this.btn_muasanpham.UseVisualStyleBackColor = true;
+            this.btn_muasanpham.Click += new System.EventHandler(this.btn_muasanpham_Click);
+            // 
+            // btn_xemdonhang
+            // 
+            this.btn_xemdonhang.Location = new System.Drawing.Point(873, 181);
+            this.btn_xemdonhang.Name = "btn_xemdonhang";
+            this.btn_xemdonhang.Size = new System.Drawing.Size(127, 81);
+            this.btn_xemdonhang.TabIndex = 25;
+            this.btn_xemdonhang.Text = "Xem đơn hàng";
+            this.btn_xemdonhang.UseVisualStyleBackColor = true;
+            this.btn_xemdonhang.Click += new System.EventHandler(this.btn_xemdonhang_Click);
             // 
             // SanPham
             // 
@@ -422,5 +446,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.TextBox txt_MoTaSanPham;
+        private System.Windows.Forms.Button btn_muasanpham;
+        private System.Windows.Forms.Button btn_xemdonhang;
     }
 }

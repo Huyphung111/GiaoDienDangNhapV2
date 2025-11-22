@@ -42,6 +42,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.cb_MaCTDH = new System.Windows.Forms.ComboBox();
             this.txt_thanhtien = new System.Windows.Forms.TextBox();
             this.txt_dongia = new System.Windows.Forms.TextBox();
@@ -58,7 +59,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.btn_xoa = new System.Windows.Forms.Button();
+            this.btn_quaylai = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.gb_donhang.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -195,6 +197,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btn_xoa);
             this.groupBox2.Controls.Add(this.pictureBox1);
             this.groupBox2.Controls.Add(this.cb_MaCTDH);
             this.groupBox2.Controls.Add(this.txt_thanhtien);
@@ -219,6 +222,15 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Chi Tiết Đơn Hàng";
             this.groupBox2.Enter += new System.EventHandler(this.groupBox2_Enter);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(901, 36);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(148, 148);
+            this.pictureBox1.TabIndex = 25;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // cb_MaCTDH
             // 
@@ -357,20 +369,32 @@
             this.label6.TabIndex = 10;
             this.label6.Text = "Mã CTDH";
             // 
-            // pictureBox1
+            // btn_xoa
             // 
-            this.pictureBox1.Location = new System.Drawing.Point(901, 36);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(148, 148);
-            this.pictureBox1.TabIndex = 25;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.btn_xoa.Location = new System.Drawing.Point(628, 145);
+            this.btn_xoa.Name = "btn_xoa";
+            this.btn_xoa.Size = new System.Drawing.Size(120, 38);
+            this.btn_xoa.TabIndex = 26;
+            this.btn_xoa.Text = "Xoa";
+            this.btn_xoa.UseVisualStyleBackColor = true;
+            this.btn_xoa.Click += new System.EventHandler(this.btn_xoa_Click);
+            // 
+            // btn_quaylai
+            // 
+            this.btn_quaylai.Location = new System.Drawing.Point(439, 252);
+            this.btn_quaylai.Name = "btn_quaylai";
+            this.btn_quaylai.Size = new System.Drawing.Size(120, 38);
+            this.btn_quaylai.TabIndex = 27;
+            this.btn_quaylai.Text = "Quay lai";
+            this.btn_quaylai.UseVisualStyleBackColor = true;
+            this.btn_quaylai.Click += new System.EventHandler(this.btn_quaylai_Click);
             // 
             // DonHang
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1603, 538);
+            this.Controls.Add(this.btn_quaylai);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.gb_donhang);
             this.Controls.Add(this.dataGridView1);
@@ -420,5 +444,7 @@
         private System.Windows.Forms.Button btn_huydonhangnay;
         private System.Windows.Forms.ComboBox cb_MaCTDH;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Button btn_xoa;
+        private System.Windows.Forms.Button btn_quaylai;
     }
 }

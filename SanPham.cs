@@ -690,5 +690,188 @@ namespace GiaoDienDangNhap
         {
             // Không cần làm gì, SanPham_Load đã xử lý
         }
+
+        // ===========================================================================================
+        // THAY THẾ 2 HÀM NÀY VÀO CUỐI FILE SanPham.cs (TRƯỚC DẤU } CUỐI CÙNG)
+        // ===========================================================================================
+
+        // ===== NÚT MUA SẢN PHẨM PHỤ KIỆN =====
+        private void btn_muasanpham_Click(object sender, EventArgs e)
+        {
+            // Kiểm tra đã chọn sản phẩm chưa
+            if (string.IsNullOrWhiteSpace(textBox1.Text))
+            {
+                MessageBox.Show("Vui lòng chọn sản phẩm cần mua!",
+                               "Thông báo",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Kiểm tra số lượng
+            int soLuongHienTai = 0;
+            if (!int.TryParse(textBox4.Text, out soLuongHienTai) || soLuongHienTai <= 0)
+            {
+                MessageBox.Show("Sản phẩm này đã hết hàng!",
+                               "Thông báo",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Lấy giá bán
+            decimal giaBan = 0;
+            if (!decimal.TryParse(textBox5.Text, out giaBan))
+            {
+                MessageBox.Show("Giá bán không hợp lệ!", "Lỗi");
+                return;
+            }
+
+            // Xác nhận mua
+            DialogResult result = MessageBox.Show(
+                $"Bạn có muốn mua sản phẩm '{textBox3.Text}'?\n" +
+                $"Giá: {giaBan:N0} VNĐ\n" +
+                $"Số lượng còn lại: {soLuongHienTai}",
+                "Xác nhận mua",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                // Lưu thông tin để hiển thị sau
+                string maSanPham = textBox1.Text;
+                string tenSanPham = textBox3.Text;
+                int soLuongMoi = soLuongHienTai - 1;
+
+                try
+                {
+                    conn.Open();
+                    string sqlBatch = @"
+                DECLARE @MaDonHang NVARCHAR(20);
+                DECLARE @MaCTDH NVARCHAR(20);
+                DECLARE @CountCTDH INT;
+                DECLARE @MaKH NVARCHAR(20);
+                
+                -- 1. Lấy hoặc tạo đơn hàng
+                SELECT TOP 1 @MaDonHang = MaDonHang 
+                FROM DonHang 
+                WHERE TrangThai = N'Chờ xử lý' 
+                ORDER BY NgayDat DESC;
+                
+                IF @MaDonHang IS NULL
+                BEGIN
+                    SET @MaDonHang = 'DH' + FORMAT(GETDATE(), 'yyyyMMddHHmmss');
+                    
+                    -- Lấy mã khách hàng đầu tiên
+                    SELECT TOP 1 @MaKH = MaKH FROM KhachHang;
+                    
+                    -- Nếu không có khách hàng, dùng mã mặc định
+                    IF @MaKH IS NULL
+                        SET @MaKH = 'KH001';
+                    
+                    -- Tạo đơn hàng mới
+                    INSERT INTO DonHang (MaDonHang, MaKH, NgayDat, TongTien, TrangThai)
+                    VALUES (@MaDonHang, @MaKH, GETDATE(), 0, N'Chờ xử lý');
+                END
+                
+                -- 2. Tạo mã chi tiết đơn hàng
+                SELECT @CountCTDH = COUNT(*) FROM ChiTietDonHang;
+                SET @MaCTDH = 'CTDH' + RIGHT('000' + CAST(@CountCTDH + 1 AS VARCHAR), 3);
+                
+                -- 3. Thêm chi tiết đơn hàng (SẢN PHẨM PHỤ KIỆN)
+                INSERT INTO ChiTietDonHang (MaCTDH, MaDonHang, LoaiSanPham, MaThuCung, MaSP, SoLuong, DonGia)
+                VALUES (@MaCTDH, @MaDonHang, N'Phụ kiện', NULL, @MaSP, 1, @DonGia);
+                
+                -- 4. Cập nhật hoặc xóa sản phẩm
+                IF @SoLuongMoi > 0
+                    UPDATE SanPhamPhuKien SET SoLuong = @SoLuongMoi WHERE MaSP = @MaSP;
+                ELSE
+                    DELETE FROM SanPhamPhuKien WHERE MaSP = @MaSP;
+                
+                -- 5. Cập nhật tổng tiền
+                UPDATE DonHang 
+                SET TongTien = (SELECT ISNULL(SUM(ThanhTien), 0) 
+                               FROM ChiTietDonHang 
+                               WHERE MaDonHang = @MaDonHang)
+                WHERE MaDonHang = @MaDonHang;
+                
+                -- Trả về mã đơn hàng
+                SELECT @MaDonHang AS MaDonHang;
+            ";
+
+                    SqlCommand cmd = new SqlCommand(sqlBatch, conn);
+                    cmd.Parameters.AddWithValue("@MaSP", maSanPham);
+                    cmd.Parameters.AddWithValue("@DonGia", giaBan);
+                    cmd.Parameters.AddWithValue("@SoLuongMoi", soLuongMoi);
+                    cmd.CommandTimeout = 30;
+
+                    // Thực thi và lấy mã đơn hàng
+                    string maDonHang = cmd.ExecuteScalar()?.ToString() ?? "";
+
+                    conn.Close();
+
+                    // Hiển thị thông báo
+                    MessageBox.Show(
+                        $"Đã thêm '{tenSanPham}' vào đơn hàng {maDonHang}!\n" +
+                        (soLuongMoi > 0 ? $"Số lượng còn lại: {soLuongMoi}" : "Sản phẩm đã hết hàng!"),
+                        "Thành công",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+
+                    // Reload dữ liệu
+                    LoadDanhSach();
+
+                    // Clear form nếu hết hàng
+                    if (soLuongMoi == 0)
+                    {
+                        ClearForm();
+                    }
+                    else
+                    {
+                        textBox4.Text = soLuongMoi.ToString();
+                    }
+
+                    // Load ảnh sau - không block UI
+                    System.Threading.Tasks.Task.Run(() =>
+                    {
+                        System.Threading.Thread.Sleep(100);
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            LoadAnhVaoGrid();
+                        });
+                    });
+                }
+                catch (Exception ex)
+                {
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
+
+                    MessageBox.Show($"Lỗi khi mua: {ex.Message}\n\nChi tiết: {ex.StackTrace}",
+                                   "Lỗi",
+                                   MessageBoxButtons.OK,
+                                   MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        // ===== NÚT XEM ĐƠN HÀNG =====
+        private void btn_xemdonhang_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Mở form DonHang
+                DonHang formDonHang = new DonHang();
+                formDonHang.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi mở form Đơn Hàng: {ex.Message}",
+                               "Lỗi",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Error);
+            }
+        }
     }
 }

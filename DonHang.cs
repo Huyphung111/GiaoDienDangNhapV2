@@ -265,6 +265,11 @@ namespace GiaoDienDangNhap
         }
 
         // Hàm load hình ảnh vào PictureBox
+        // ===========================================================================================
+        // THAY THẾ HÀM LoadHinhAnh TRONG FILE DonHang.cs
+        // ===========================================================================================
+
+        // Hàm load hình ảnh vào PictureBox - ĐÃ SỬA
         private void LoadHinhAnh(string fileName, string loaiFolder)
         {
             try
@@ -276,7 +281,7 @@ namespace GiaoDienDangNhap
 
                 if (loaiFolder == "ThuCung")
                 {
-                    // Thử cả 2 tên thư mục
+                    // Thử cả 2 tên thư mục cho Thú Cưng
                     folder = solutionPath + "\\Images\\ThuCung\\";
                     if (!Directory.Exists(folder))
                     {
@@ -285,10 +290,11 @@ namespace GiaoDienDangNhap
                 }
                 else if (loaiFolder == "SanPham")
                 {
-                    folder = solutionPath + "\\Images\\SanPham\\";
+                    // ✅ SỬA: Thử cả 2 tên thư mục cho Sản Phẩm Phụ Kiện
+                    folder = solutionPath + "\\Images\\SanPhamPhuKien\\";
                     if (!Directory.Exists(folder))
                     {
-                        folder = solutionPath + "\\Images\\Sanpham\\";
+                        folder = solutionPath + "\\Images\\SanPhamPhukien\\";
                     }
                 }
 
@@ -313,6 +319,9 @@ namespace GiaoDienDangNhap
                 else
                 {
                     ClearPictureBox();
+
+                    // Debug: Hiển thị thông báo nếu không tìm thấy file
+                    // MessageBox.Show($"Không tìm thấy file: {fullPath}", "Thông báo");
                 }
             }
             catch (Exception ex)
@@ -322,7 +331,7 @@ namespace GiaoDienDangNhap
             }
         }
 
-        // Hàm xóa ảnh trong PictureBox
+       
         private void ClearPictureBox()
         {
             if (pictureBox1 != null && pictureBox1.Image != null)
@@ -423,5 +432,197 @@ namespace GiaoDienDangNhap
         private void groupBox2_Enter(object sender, EventArgs e) { }
         private void gb_donhang_Enter(object sender, EventArgs e) { }
         private void pictureBox1_Click(object sender, EventArgs e) { }
+
+        // ===========================================================================================
+        // THAY THẾ HÀM btn_xoa_Click TRONG FILE DonHang.cs
+        // ===========================================================================================
+
+        private void btn_xoa_Click(object sender, EventArgs e)
+        {
+            // Kiểm tra đã chọn chi tiết đơn hàng chưa
+            if (cb_MaCTDH.SelectedItem == null || string.IsNullOrWhiteSpace(cb_MaCTDH.SelectedItem.ToString()))
+            {
+                MessageBox.Show("Vui lòng chọn chi tiết đơn hàng cần xóa!",
+                               "Thông báo",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Warning);
+                return;
+            }
+
+            string maCTDH = cb_MaCTDH.SelectedItem.ToString();
+            string loaiSanPham = txt_loaisanpham.Text;
+            string maThuCung = txt_mathucung.Text;
+            string maSanPham = txt_masanpham.Text;
+            int soLuong = 0;
+
+            // Lấy số lượng
+            if (!int.TryParse(txt_soluong.Text, out soLuong) || soLuong <= 0)
+            {
+                MessageBox.Show("Số lượng không hợp lệ!", "Lỗi");
+                return;
+            }
+
+            // Xác nhận xóa
+            DialogResult result = MessageBox.Show(
+                $"Bạn có chắc muốn xóa chi tiết đơn hàng này?\n" +
+                $"Mã CTDH: {maCTDH}\n" +
+                $"Loại: {loaiSanPham}\n" +
+                $"Số lượng: {soLuong}\n\n" +
+                $"Số lượng sẽ được hoàn trả lại kho!",
+                "Xác nhận xóa",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    using (SqlConnection conn = new SqlConnection(connectionString))
+                    {
+                        conn.Open();
+                        SqlTransaction transaction = conn.BeginTransaction();
+
+                        try
+                        {
+                            // Bước 1: Trả lại số lượng cho sản phẩm/thú cưng
+                            if (loaiSanPham == "Thú cưng" && !string.IsNullOrWhiteSpace(maThuCung))
+                            {
+                                // Kiểm tra xem thú cưng còn tồn tại không
+                                string sqlCheck = "SELECT COUNT(*) FROM ThuCung WHERE MaThuCung = @Ma";
+                                SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, transaction);
+                                cmdCheck.Parameters.AddWithValue("@Ma", maThuCung);
+                                int exists = (int)cmdCheck.ExecuteScalar();
+
+                                if (exists > 0)
+                                {
+                                    // Nếu còn tồn tại → Cộng thêm số lượng
+                                    string sqlUpdate = "UPDATE ThuCung SET SoLuong = SoLuong + @SoLuong WHERE MaThuCung = @Ma";
+                                    SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, transaction);
+                                    cmdUpdate.Parameters.AddWithValue("@Ma", maThuCung);
+                                    cmdUpdate.Parameters.AddWithValue("@SoLuong", soLuong);
+                                    cmdUpdate.ExecuteNonQuery();
+                                }
+                                else
+                                {
+                                    // Nếu đã bị xóa → Tạo lại với số lượng ban đầu
+                                    // (Cần thêm thông tin khác từ database - tạm thời bỏ qua)
+                                    MessageBox.Show(
+                                        $"Thú cưng {maThuCung} đã bị xóa khỏi hệ thống.\n" +
+                                        "Không thể hoàn trả số lượng!",
+                                        "Cảnh báo",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning
+                                    );
+                                }
+                            }
+                            else if (loaiSanPham == "Phụ kiện" && !string.IsNullOrWhiteSpace(maSanPham))
+                            {
+                                // Kiểm tra xem sản phẩm còn tồn tại không
+                                string sqlCheck = "SELECT COUNT(*) FROM SanPhamPhuKien WHERE MaSP = @Ma";
+                                SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, transaction);
+                                cmdCheck.Parameters.AddWithValue("@Ma", maSanPham);
+                                int exists = (int)cmdCheck.ExecuteScalar();
+
+                                if (exists > 0)
+                                {
+                                    // Nếu còn tồn tại → Cộng thêm số lượng
+                                    string sqlUpdate = "UPDATE SanPhamPhuKien SET SoLuong = SoLuong + @SoLuong WHERE MaSP = @Ma";
+                                    SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, transaction);
+                                    cmdUpdate.Parameters.AddWithValue("@Ma", maSanPham);
+                                    cmdUpdate.Parameters.AddWithValue("@SoLuong", soLuong);
+                                    cmdUpdate.ExecuteNonQuery();
+                                }
+                                else
+                                {
+                                    MessageBox.Show(
+                                        $"Sản phẩm {maSanPham} đã bị xóa khỏi hệ thống.\n" +
+                                        "Không thể hoàn trả số lượng!",
+                                        "Cảnh báo",
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Warning
+                                    );
+                                }
+                            }
+
+                            // Bước 2: Xóa chi tiết đơn hàng
+                            string sqlDeleteCTDH = "DELETE FROM ChiTietDonHang WHERE MaCTDH = @MaCTDH";
+                            SqlCommand cmdDeleteCTDH = new SqlCommand(sqlDeleteCTDH, conn, transaction);
+                            cmdDeleteCTDH.Parameters.AddWithValue("@MaCTDH", maCTDH);
+                            int rowsDeleted = cmdDeleteCTDH.ExecuteNonQuery();
+
+                            // Bước 3: Cập nhật tổng tiền đơn hàng
+                            string maDonHang = txt_madonhang.Text;
+                            string sqlUpdateTongTien = @"
+                        UPDATE DonHang 
+                        SET TongTien = (
+                            SELECT ISNULL(SUM(ThanhTien), 0) 
+                            FROM ChiTietDonHang 
+                            WHERE MaDonHang = @MaDonHang
+                        )
+                        WHERE MaDonHang = @MaDonHang";
+
+                            SqlCommand cmdUpdateTongTien = new SqlCommand(sqlUpdateTongTien, conn, transaction);
+                            cmdUpdateTongTien.Parameters.AddWithValue("@MaDonHang", maDonHang);
+                            cmdUpdateTongTien.ExecuteNonQuery();
+
+                            // Commit transaction
+                            transaction.Commit();
+
+                            if (rowsDeleted > 0)
+                            {
+                                MessageBox.Show(
+                                    "Xóa chi tiết đơn hàng thành công!\n" +
+                                    $"Đã hoàn trả {soLuong} sản phẩm vào kho.",
+                                    "Thành công",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Information
+                                );
+
+                                // Reload lại dữ liệu
+                                LoadDonHang();
+
+                                // Load lại combobox chi tiết
+                                LoadMaCTDHComboBox(maDonHang);
+
+                                // Clear các textbox chi tiết
+                                ClearChiTietFields();
+                                ClearPictureBox();
+
+                                // Load lại tổng tiền
+                                string sqlGetTongTien = "SELECT TongTien FROM DonHang WHERE MaDonHang = @MaDonHang";
+                                SqlCommand cmdGetTongTien = new SqlCommand(sqlGetTongTien, conn);
+                                cmdGetTongTien.Parameters.AddWithValue("@MaDonHang", maDonHang);
+                                object tongTienObj = cmdGetTongTien.ExecuteScalar();
+                                if (tongTienObj != null)
+                                {
+                                    txt_tongtien.Text = tongTienObj.ToString();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Rollback nếu có lỗi
+                            transaction.Rollback();
+                            throw ex;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Lỗi khi xóa chi tiết đơn hàng:\n{ex.Message}",
+                        "Lỗi",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                }
+            }
+        }
+
+        private void btn_quaylai_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
