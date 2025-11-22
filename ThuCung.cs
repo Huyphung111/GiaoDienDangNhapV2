@@ -611,5 +611,252 @@ namespace GiaoDienDangNhap
         private void cbMaloai_SelectedIndexChanged(object sender, EventArgs e) { }
         private void picAnh_Click(object sender, EventArgs e) { }
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+
+        private void btn_mua_Click(object sender, EventArgs e)
+        {
+            // Kiểm tra xem có chọn thú cưng không
+            if (string.IsNullOrWhiteSpace(txtMa.Text))
+            {
+                MessageBox.Show("Vui lòng chọn thú cưng cần mua!",
+                               "Thông báo",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Kiểm tra số lượng
+            int soLuongHienTai = 0;
+            if (!int.TryParse(txtSoLuong.Text, out soLuongHienTai) || soLuongHienTai <= 0)
+            {
+                MessageBox.Show("Thú cưng này đã hết hàng!",
+                               "Thông báo",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Lấy giá bán
+            decimal giaBan = 0;
+            if (!decimal.TryParse(txtGiaBan.Text, out giaBan))
+            {
+                MessageBox.Show("Giá bán không hợp lệ!", "Lỗi");
+                return;
+            }
+
+            // Xác nhận mua
+            DialogResult result = MessageBox.Show(
+                $"Bạn có muốn mua thú cưng '{txtTen.Text}'?\n" +
+                $"Giá: {giaBan:N0} VNĐ\n" +
+                $"Số lượng còn lại: {soLuongHienTai}",
+                "Xác nhận mua",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result == DialogResult.Yes)
+            {
+                // Lưu thông tin để hiển thị sau
+                string maThuCung = txtMa.Text;
+                string tenThuCung = txtTen.Text;
+                int soLuongMoi = soLuongHienTai - 1;
+
+                using (SqlConnection conn = new SqlConnection(cnnStr))
+                {
+                    try
+                    {
+                        conn.Open();
+
+                        // Sửa lại câu SQL - loại bỏ lỗi cú pháp TOP
+                        string sqlBatch = @"
+                    DECLARE @MaDonHang NVARCHAR(20);
+                    DECLARE @MaCTDH NVARCHAR(20);
+                    DECLARE @CountCTDH INT;
+                    DECLARE @MaKH NVARCHAR(20);
+                    
+                    -- 1. Lấy hoặc tạo đơn hàng
+                    SELECT TOP 1 @MaDonHang = MaDonHang 
+                    FROM DonHang 
+                    WHERE TrangThai = N'Chờ xử lý' 
+                    ORDER BY NgayDat DESC;
+                    
+                    IF @MaDonHang IS NULL
+                    BEGIN
+                        SET @MaDonHang = 'DH' + FORMAT(GETDATE(), 'yyyyMMddHHmmss');
+                        
+                        -- Lấy mã khách hàng đầu tiên
+                        SELECT TOP 1 @MaKH = MaKH FROM KhachHang;
+                        
+                        -- Nếu không có khách hàng, dùng mã mặc định
+                        IF @MaKH IS NULL
+                            SET @MaKH = 'KH001';
+                        
+                        -- Tạo đơn hàng mới
+                        INSERT INTO DonHang (MaDonHang, MaKH, NgayDat, TongTien, TrangThai)
+                        VALUES (@MaDonHang, @MaKH, GETDATE(), 0, N'Chờ xử lý');
+                    END
+                    
+                    -- 2. Tạo mã chi tiết đơn hàng
+                    SELECT @CountCTDH = COUNT(*) FROM ChiTietDonHang;
+                    SET @MaCTDH = 'CTDH' + RIGHT('000' + CAST(@CountCTDH + 1 AS VARCHAR), 3);
+                    
+                    -- 3. Thêm chi tiết đơn hàng
+                    INSERT INTO ChiTietDonHang (MaCTDH, MaDonHang, LoaiSanPham, MaThuCung, MaSP, SoLuong, DonGia)
+                    VALUES (@MaCTDH, @MaDonHang, N'Thú cưng', @MaThuCung, NULL, 1, @DonGia);
+                    
+                    -- 4. Cập nhật hoặc xóa thú cưng
+                    IF @SoLuongMoi > 0
+                        UPDATE ThuCung SET SoLuong = @SoLuongMoi WHERE MaThuCung = @MaThuCung;
+                    ELSE
+                        DELETE FROM ThuCung WHERE MaThuCung = @MaThuCung;
+                    
+                    -- 5. Cập nhật tổng tiền
+                    UPDATE DonHang 
+                    SET TongTien = (SELECT ISNULL(SUM(ThanhTien), 0) 
+                                   FROM ChiTietDonHang 
+                                   WHERE MaDonHang = @MaDonHang)
+                    WHERE MaDonHang = @MaDonHang;
+                    
+                    -- Trả về mã đơn hàng
+                    SELECT @MaDonHang AS MaDonHang;
+                ";
+
+                        SqlCommand cmd = new SqlCommand(sqlBatch, conn);
+                        cmd.Parameters.AddWithValue("@MaThuCung", maThuCung);
+                        cmd.Parameters.AddWithValue("@DonGia", giaBan);
+                        cmd.Parameters.AddWithValue("@SoLuongMoi", soLuongMoi);
+                        cmd.CommandTimeout = 30;
+
+                        // Thực thi và lấy mã đơn hàng
+                        string maDonHang = cmd.ExecuteScalar()?.ToString() ?? "";
+
+                        // Hiển thị thông báo
+                        MessageBox.Show(
+                            $"Đã thêm '{tenThuCung}' vào đơn hàng {maDonHang}!\n" +
+                            (soLuongMoi > 0 ? $"Số lượng còn lại: {soLuongMoi}" : "Sản phẩm đã hết hàng!"),
+                            "Thành công",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information
+                        );
+
+                        // Reload dữ liệu
+                        LoadThuCung();
+
+                        // Clear form nếu hết hàng
+                        if (soLuongMoi == 0)
+                        {
+                            txtMa.Clear();
+                            txtTen.Clear();
+                            txtTuoi.Clear();
+                            txtGiaBan.Clear();
+                            txtSoLuong.Clear();
+                            txtMota.Clear();
+                            cbMaloai.SelectedIndex = -1;
+                            cboGioiTinh.SelectedIndex = -1;
+
+                            if (picAnh.Image != null)
+                            {
+                                var oldImage = picAnh.Image;
+                                picAnh.Image = null;
+                                oldImage.Dispose();
+                            }
+                        }
+                        else
+                        {
+                            txtSoLuong.Text = soLuongMoi.ToString();
+                        }
+
+                        // Load ảnh sau - không block UI
+                        System.Threading.Tasks.Task.Run(() =>
+                        {
+                            System.Threading.Thread.Sleep(100);
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                LoadAnhVaoGrid();
+                            });
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Lỗi khi mua: {ex.Message}\n\nChi tiết: {ex.StackTrace}",
+                                       "Lỗi",
+                                       MessageBoxButtons.OK,
+                                       MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        // Hàm tạo hoặc lấy đơn hàng hiện có (mặc định lấy đơn hàng đầu tiên hoặc tạo mới)
+        private string TaoHoacLayDonHang(SqlConnection conn, SqlTransaction transaction)
+        {
+            // Kiểm tra xem có đơn hàng "Chờ xử lý" nào không
+            string sqlCheck = "SELECT TOP 1 MaDonHang FROM DonHang WHERE TrangThai = N'Chờ xử lý' ORDER BY NgayDat DESC";
+            SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, transaction);
+            object result = cmdCheck.ExecuteScalar();
+
+            if (result != null)
+            {
+                return result.ToString();
+            }
+
+            // Nếu chưa có - Tạo đơn hàng mới
+            string maDonHang = "DH" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            // Lấy khách hàng đầu tiên (hoặc có thể cho người dùng chọn)
+            string sqlGetKH = "SELECT TOP 1 MaKH FROM KhachHang";
+            SqlCommand cmdGetKH = new SqlCommand(sqlGetKH, conn, transaction);
+            string maKH = cmdGetKH.ExecuteScalar()?.ToString() ?? "KH001";
+
+            string sqlInsert = @"INSERT INTO DonHang (MaDonHang, MaKH, NgayDat, TongTien, TrangThai)
+                        VALUES (@MaDonHang, @MaKH, GETDATE(), 0, N'Chờ xử lý')";
+
+            SqlCommand cmdInsert = new SqlCommand(sqlInsert, conn, transaction);
+            cmdInsert.Parameters.AddWithValue("@MaDonHang", maDonHang);
+            cmdInsert.Parameters.AddWithValue("@MaKH", maKH);
+            cmdInsert.ExecuteNonQuery();
+
+            return maDonHang;
+        }
+
+        // Hàm tạo mã chi tiết đơn hàng
+        private string TaoMaChiTietDonHang(SqlConnection conn, SqlTransaction transaction)
+        {
+            string sqlCount = "SELECT COUNT(*) FROM ChiTietDonHang";
+            SqlCommand cmdCount = new SqlCommand(sqlCount, conn, transaction);
+            int count = (int)cmdCount.ExecuteScalar();
+
+            return "CTDH" + (count + 1).ToString("D3");
+        }
+
+        // Hàm cập nhật tổng tiền đơn hàng
+        private void CapNhatTongTienDonHang(SqlConnection conn, SqlTransaction transaction, string maDonHang)
+        {
+            string sqlUpdateTong = @"UPDATE DonHang 
+                            SET TongTien = (SELECT ISNULL(SUM(ThanhTien), 0) 
+                                          FROM ChiTietDonHang 
+                                          WHERE MaDonHang = @MaDonHang)
+                            WHERE MaDonHang = @MaDonHang";
+
+            SqlCommand cmdUpdateTong = new SqlCommand(sqlUpdateTong, conn, transaction);
+            cmdUpdateTong.Parameters.AddWithValue("@MaDonHang", maDonHang);
+            cmdUpdateTong.ExecuteNonQuery();
+        }
+
+        private void Btn_XemThuCungVaoDonHang_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Mở form DonHang
+                DonHang formDonHang = new DonHang();
+                formDonHang.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi mở form Đơn Hàng: {ex.Message}",
+                               "Lỗi",
+                               MessageBoxButtons.OK,
+                               MessageBoxIcon.Error);
+            }
+        }
     }
 }

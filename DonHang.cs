@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,12 @@ namespace GiaoDienDangNhap
         // Form Load Event
         private void DonHang_Load(object sender, EventArgs e)
         {
+            // Cấu hình PictureBox
+            if (pictureBox1 != null)
+            {
+                pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            }
+
             LoadComboBoxTrangThai();
             LoadDonHang();
             SetReadOnlyFields();
@@ -172,7 +179,7 @@ namespace GiaoDienDangNhap
             }
         }
 
-        // Load Chi Tiết Đơn Hàng theo Mã CTDH
+        // Load Chi Tiết Đơn Hàng theo Mã CTDH - CÓ HIỂN THỊ ẢNH
         private void LoadChiTietDonHang(string maCTDH)
         {
             try
@@ -180,11 +187,17 @@ namespace GiaoDienDangNhap
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
+
+                    // Query JOIN với ThuCung và SanPhamPhuKien để lấy ảnh
                     string query = @"SELECT 
-                                    MaCTDH, MaDonHang, LoaiSanPham, 
-                                    MaThuCung, MaSP, SoLuong, DonGia, ThanhTien 
-                                    FROM ChiTietDonHang 
-                                    WHERE MaCTDH = @MaCTDH";
+                                    ctdh.MaCTDH, ctdh.MaDonHang, ctdh.LoaiSanPham, 
+                                    ctdh.MaThuCung, ctdh.MaSP, ctdh.SoLuong, ctdh.DonGia, ctdh.ThanhTien,
+                                    tc.HinhAnh AS HinhAnhThuCung, tc.TenThuCung,
+                                    sp.HinhAnh AS HinhAnhSanPham, sp.TenSP
+                                    FROM ChiTietDonHang ctdh
+                                    LEFT JOIN ThuCung tc ON ctdh.MaThuCung = tc.MaThuCung
+                                    LEFT JOIN SanPhamPhuKien sp ON ctdh.MaSP = sp.MaSP
+                                    WHERE ctdh.MaCTDH = @MaCTDH";
 
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@MaCTDH", maCTDH);
@@ -200,17 +213,123 @@ namespace GiaoDienDangNhap
                         txt_soluong.Text = reader["SoLuong"].ToString();
                         txt_dongia.Text = reader["DonGia"].ToString();
                         txt_thanhtien.Text = reader["ThanhTien"].ToString();
+
+                        // ===== HIỂN THỊ ẢNH =====
+                        string loaiSanPham = reader["LoaiSanPham"].ToString();
+
+                        if (loaiSanPham == "Thú cưng")
+                        {
+                            // Load ảnh thú cưng
+                            if (reader["HinhAnhThuCung"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["HinhAnhThuCung"].ToString()))
+                            {
+                                string fileName = reader["HinhAnhThuCung"].ToString().Trim();
+                                LoadHinhAnh(fileName, "ThuCung");
+                            }
+                            else
+                            {
+                                ClearPictureBox();
+                            }
+                        }
+                        else if (loaiSanPham == "Phụ kiện")
+                        {
+                            // Load ảnh sản phẩm phụ kiện
+                            if (reader["HinhAnhSanPham"] != DBNull.Value && !string.IsNullOrWhiteSpace(reader["HinhAnhSanPham"].ToString()))
+                            {
+                                string fileName = reader["HinhAnhSanPham"].ToString().Trim();
+                                LoadHinhAnh(fileName, "SanPham");
+                            }
+                            else
+                            {
+                                ClearPictureBox();
+                            }
+                        }
+                        else
+                        {
+                            ClearPictureBox();
+                        }
                     }
                     else
                     {
                         // Clear nếu không có chi tiết
                         ClearChiTietFields();
+                        ClearPictureBox();
                     }
+
+                    reader.Close();
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi load chi tiết: " + ex.Message);
+            }
+        }
+
+        // Hàm load hình ảnh vào PictureBox
+        private void LoadHinhAnh(string fileName, string loaiFolder)
+        {
+            try
+            {
+                string projectPath = Application.StartupPath;
+                string solutionPath = Directory.GetParent(Directory.GetParent(projectPath).FullName).FullName;
+
+                string folder = "";
+
+                if (loaiFolder == "ThuCung")
+                {
+                    // Thử cả 2 tên thư mục
+                    folder = solutionPath + "\\Images\\ThuCung\\";
+                    if (!Directory.Exists(folder))
+                    {
+                        folder = solutionPath + "\\Images\\Thucung\\";
+                    }
+                }
+                else if (loaiFolder == "SanPham")
+                {
+                    folder = solutionPath + "\\Images\\SanPham\\";
+                    if (!Directory.Exists(folder))
+                    {
+                        folder = solutionPath + "\\Images\\Sanpham\\";
+                    }
+                }
+
+                string fullPath = folder + fileName;
+
+                if (File.Exists(fullPath))
+                {
+                    // Giải phóng ảnh cũ
+                    if (pictureBox1.Image != null)
+                    {
+                        var oldImage = pictureBox1.Image;
+                        pictureBox1.Image = null;
+                        oldImage.Dispose();
+                    }
+
+                    // Load ảnh mới
+                    using (var stream = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                    {
+                        pictureBox1.Image = Image.FromStream(stream);
+                    }
+                }
+                else
+                {
+                    ClearPictureBox();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi load ảnh: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                ClearPictureBox();
+            }
+        }
+
+        // Hàm xóa ảnh trong PictureBox
+        private void ClearPictureBox()
+        {
+            if (pictureBox1 != null && pictureBox1.Image != null)
+            {
+                var oldImage = pictureBox1.Image;
+                pictureBox1.Image = null;
+                oldImage.Dispose();
             }
         }
 
@@ -275,6 +394,7 @@ namespace GiaoDienDangNhap
             cb_trangthai.SelectedIndex = -1;
             dateTimePicker1.Value = DateTime.Now;
             ClearChiTietFields();
+            ClearPictureBox();
         }
 
         // Event khi chọn Mã CTDH trong ComboBox
@@ -302,5 +422,6 @@ namespace GiaoDienDangNhap
         private void txt_thanhtien_TextChanged(object sender, EventArgs e) { }
         private void groupBox2_Enter(object sender, EventArgs e) { }
         private void gb_donhang_Enter(object sender, EventArgs e) { }
+        private void pictureBox1_Click(object sender, EventArgs e) { }
     }
 }

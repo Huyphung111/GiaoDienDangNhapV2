@@ -35,16 +35,23 @@
             this.txtTim = new System.Windows.Forms.TextBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.btn_mua = new System.Windows.Forms.Button();
+            this.Btn_XemThuCungVaoDonHang = new System.Windows.Forms.Button();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.tool_themm = new System.Windows.Forms.ToolStripButton();
             this.tool_them = new System.Windows.Forms.ToolStripLabel();
+            this.tool_xoa = new System.Windows.Forms.ToolStripButton();
             this.tool_xoaa = new System.Windows.Forms.ToolStripLabel();
+            this.tool_suaa = new System.Windows.Forms.ToolStripButton();
             this.tool_sua = new System.Windows.Forms.ToolStripLabel();
+            this.tool_luuu = new System.Windows.Forms.ToolStripButton();
             this.tool_luu = new System.Windows.Forms.ToolStripLabel();
             this.cbMaloai = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.txtMa = new System.Windows.Forms.TextBox();
             this.txtSoLuong = new System.Windows.Forms.TextBox();
+            this.picAnh = new System.Windows.Forms.PictureBox();
             this.btnChonAnh = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.txtMota = new System.Windows.Forms.TextBox();
@@ -59,12 +66,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.txtTen = new System.Windows.Forms.TextBox();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.Btn_ThemThuCungVaoDonHang = new System.Windows.Forms.Button();
-            this.tool_themm = new System.Windows.Forms.ToolStripButton();
-            this.tool_xoa = new System.Windows.Forms.ToolStripButton();
-            this.tool_suaa = new System.Windows.Forms.ToolStripButton();
-            this.tool_luuu = new System.Windows.Forms.ToolStripButton();
-            this.picAnh = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel2.SuspendLayout();
@@ -123,7 +124,8 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.Btn_ThemThuCungVaoDonHang);
+            this.panel2.Controls.Add(this.btn_mua);
+            this.panel2.Controls.Add(this.Btn_XemThuCungVaoDonHang);
             this.panel2.Controls.Add(this.toolStrip1);
             this.panel2.Controls.Add(this.cbMaloai);
             this.panel2.Controls.Add(this.label9);
@@ -149,6 +151,26 @@
             this.panel2.Size = new System.Drawing.Size(1237, 255);
             this.panel2.TabIndex = 2;
             // 
+            // btn_mua
+            // 
+            this.btn_mua.Location = new System.Drawing.Point(719, 135);
+            this.btn_mua.Name = "btn_mua";
+            this.btn_mua.Size = new System.Drawing.Size(127, 81);
+            this.btn_mua.TabIndex = 23;
+            this.btn_mua.Text = "Mua";
+            this.btn_mua.UseVisualStyleBackColor = true;
+            this.btn_mua.Click += new System.EventHandler(this.btn_mua_Click);
+            // 
+            // Btn_XemThuCungVaoDonHang
+            // 
+            this.Btn_XemThuCungVaoDonHang.Location = new System.Drawing.Point(855, 135);
+            this.Btn_XemThuCungVaoDonHang.Name = "Btn_XemThuCungVaoDonHang";
+            this.Btn_XemThuCungVaoDonHang.Size = new System.Drawing.Size(127, 81);
+            this.Btn_XemThuCungVaoDonHang.TabIndex = 22;
+            this.Btn_XemThuCungVaoDonHang.Text = "Xem đơn hàng";
+            this.Btn_XemThuCungVaoDonHang.UseVisualStyleBackColor = true;
+            this.Btn_XemThuCungVaoDonHang.Click += new System.EventHandler(this.Btn_XemThuCungVaoDonHang_Click);
+            // 
             // toolStrip1
             // 
             this.toolStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
@@ -167,11 +189,31 @@
             this.toolStrip1.TabIndex = 21;
             this.toolStrip1.Text = "toolStrip1";
             // 
+            // tool_themm
+            // 
+            this.tool_themm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_themm.Image = ((System.Drawing.Image)(resources.GetObject("tool_themm.Image")));
+            this.tool_themm.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_themm.Name = "tool_themm";
+            this.tool_themm.Size = new System.Drawing.Size(34, 28);
+            this.tool_themm.Text = "toolStripButton1";
+            this.tool_themm.Click += new System.EventHandler(this.tool_themm_Click);
+            // 
             // tool_them
             // 
             this.tool_them.Name = "tool_them";
             this.tool_them.Size = new System.Drawing.Size(56, 28);
             this.tool_them.Text = "Thêm";
+            // 
+            // tool_xoa
+            // 
+            this.tool_xoa.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_xoa.Image = ((System.Drawing.Image)(resources.GetObject("tool_xoa.Image")));
+            this.tool_xoa.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_xoa.Name = "tool_xoa";
+            this.tool_xoa.Size = new System.Drawing.Size(34, 28);
+            this.tool_xoa.Text = "toolStripButton2";
+            this.tool_xoa.Click += new System.EventHandler(this.tool_xoa_Click);
             // 
             // tool_xoaa
             // 
@@ -179,11 +221,31 @@
             this.tool_xoaa.Size = new System.Drawing.Size(43, 28);
             this.tool_xoaa.Text = "Xóa";
             // 
+            // tool_suaa
+            // 
+            this.tool_suaa.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_suaa.Image = ((System.Drawing.Image)(resources.GetObject("tool_suaa.Image")));
+            this.tool_suaa.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_suaa.Name = "tool_suaa";
+            this.tool_suaa.Size = new System.Drawing.Size(34, 28);
+            this.tool_suaa.Text = "toolStripButton3";
+            this.tool_suaa.Click += new System.EventHandler(this.tool_suaa_Click);
+            // 
             // tool_sua
             // 
             this.tool_sua.Name = "tool_sua";
             this.tool_sua.Size = new System.Drawing.Size(42, 28);
             this.tool_sua.Text = "Sửa";
+            // 
+            // tool_luuu
+            // 
+            this.tool_luuu.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.tool_luuu.Image = ((System.Drawing.Image)(resources.GetObject("tool_luuu.Image")));
+            this.tool_luuu.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tool_luuu.Name = "tool_luuu";
+            this.tool_luuu.Size = new System.Drawing.Size(34, 28);
+            this.tool_luuu.Text = "Sửa";
+            this.tool_luuu.Click += new System.EventHandler(this.tool_luuu_Click);
             // 
             // tool_luu
             // 
@@ -233,6 +295,15 @@
             this.txtSoLuong.Size = new System.Drawing.Size(165, 26);
             this.txtSoLuong.TabIndex = 16;
             this.txtSoLuong.TextChanged += new System.EventHandler(this.txtSoLuong_TextChanged);
+            // 
+            // picAnh
+            // 
+            this.picAnh.Location = new System.Drawing.Point(999, 35);
+            this.picAnh.Name = "picAnh";
+            this.picAnh.Size = new System.Drawing.Size(193, 128);
+            this.picAnh.TabIndex = 15;
+            this.picAnh.TabStop = false;
+            this.picAnh.Click += new System.EventHandler(this.picAnh_Click);
             // 
             // btnChonAnh
             // 
@@ -349,64 +420,6 @@
             this.txtTen.TabIndex = 0;
             this.txtTen.TextChanged += new System.EventHandler(this.txtTen_TextChanged);
             // 
-            // Btn_ThemThuCungVaoDonHang
-            // 
-            this.Btn_ThemThuCungVaoDonHang.Location = new System.Drawing.Point(735, 135);
-            this.Btn_ThemThuCungVaoDonHang.Name = "Btn_ThemThuCungVaoDonHang";
-            this.Btn_ThemThuCungVaoDonHang.Size = new System.Drawing.Size(215, 81);
-            this.Btn_ThemThuCungVaoDonHang.TabIndex = 22;
-            this.Btn_ThemThuCungVaoDonHang.Text = "Thêm";
-            this.Btn_ThemThuCungVaoDonHang.UseVisualStyleBackColor = true;
-            // 
-            // tool_themm
-            // 
-            this.tool_themm.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tool_themm.Image = ((System.Drawing.Image)(resources.GetObject("tool_themm.Image")));
-            this.tool_themm.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tool_themm.Name = "tool_themm";
-            this.tool_themm.Size = new System.Drawing.Size(34, 28);
-            this.tool_themm.Text = "toolStripButton1";
-            this.tool_themm.Click += new System.EventHandler(this.tool_themm_Click);
-            // 
-            // tool_xoa
-            // 
-            this.tool_xoa.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tool_xoa.Image = ((System.Drawing.Image)(resources.GetObject("tool_xoa.Image")));
-            this.tool_xoa.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tool_xoa.Name = "tool_xoa";
-            this.tool_xoa.Size = new System.Drawing.Size(34, 28);
-            this.tool_xoa.Text = "toolStripButton2";
-            this.tool_xoa.Click += new System.EventHandler(this.tool_xoa_Click);
-            // 
-            // tool_suaa
-            // 
-            this.tool_suaa.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tool_suaa.Image = ((System.Drawing.Image)(resources.GetObject("tool_suaa.Image")));
-            this.tool_suaa.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tool_suaa.Name = "tool_suaa";
-            this.tool_suaa.Size = new System.Drawing.Size(34, 28);
-            this.tool_suaa.Text = "toolStripButton3";
-            this.tool_suaa.Click += new System.EventHandler(this.tool_suaa_Click);
-            // 
-            // tool_luuu
-            // 
-            this.tool_luuu.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.tool_luuu.Image = ((System.Drawing.Image)(resources.GetObject("tool_luuu.Image")));
-            this.tool_luuu.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tool_luuu.Name = "tool_luuu";
-            this.tool_luuu.Size = new System.Drawing.Size(34, 28);
-            this.tool_luuu.Text = "Sửa";
-            this.tool_luuu.Click += new System.EventHandler(this.tool_luuu_Click);
-            // 
-            // picAnh
-            // 
-            this.picAnh.Location = new System.Drawing.Point(999, 35);
-            this.picAnh.Name = "picAnh";
-            this.picAnh.Size = new System.Drawing.Size(193, 128);
-            this.picAnh.TabIndex = 15;
-            this.picAnh.TabStop = false;
-            this.picAnh.Click += new System.EventHandler(this.picAnh_Click);
-            // 
             // ThuCung
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -467,6 +480,7 @@
         private System.Windows.Forms.ToolStripButton tool_luuu;
         private System.Windows.Forms.ToolStripLabel tool_luu;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
-        private System.Windows.Forms.Button Btn_ThemThuCungVaoDonHang;
+        private System.Windows.Forms.Button Btn_XemThuCungVaoDonHang;
+        private System.Windows.Forms.Button btn_mua;
     }
 }
