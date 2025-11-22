@@ -88,6 +88,12 @@
     <Compile Include="DoiMatKhau.Designer.cs">
       <DependentUpon>DoiMatKhau.cs</DependentUpon>
     </Compile>
+    <Compile Include="DonHang.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DonHang.Designer.cs">
+      <DependentUpon>DonHang.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -138,12 +144,6 @@
     <Compile Include="ThuCung.Designer.cs">
       <DependentUpon>ThuCung.cs</DependentUpon>
     </Compile>
-    <Compile Include="ThuCungGiaoDien.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ThuCungGiaoDien.Designer.cs">
-      <DependentUpon>ThuCungGiaoDien.cs</DependentUpon>
-    </Compile>
     <Compile Include="TrangTaiKhoang.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -152,6 +152,9 @@
     </Compile>
     <EmbeddedResource Include="DoiMatKhau.resx">
       <DependentUpon>DoiMatKhau.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DonHang.resx">
+      <DependentUpon>DonHang.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -186,9 +189,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ThuCung.resx">
       <DependentUpon>ThuCung.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ThuCungGiaoDien.resx">
-      <DependentUpon>ThuCungGiaoDien.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TrangTaiKhoang.resx">
       <DependentUpon>TrangTaiKhoang.cs</DependentUpon>

@@ -19,7 +19,7 @@ namespace GiaoDienDangNhap
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new HoaDon());
+            Application.Run(new DonHang());
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
